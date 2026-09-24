@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Pay bills · Paywise</title><link rel="stylesheet" href="styles.css"></head>
-<body>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Auto payments · Paywise</title><link rel="stylesheet" href="styles.css"></head>
+<body data-page-view="auto" class="specific-page">
   <div class="app-shell">
     <aside class="sidebar">
       <a class="brand" href="index.html"><span class="brand-mark">P</span> Paywise</a>
@@ -9,19 +9,19 @@
       <nav aria-label="Main navigation">
         <a href="index.html"><span>▦</span> Overview</a>
         <a href="index.html#paychecks"><span>◫</span> Paychecks</a>
-        <div class="nav-group"><a class="nav-parent active" aria-current="page" href="pay-bills.html"><span>▤</span> Pay bills</a>
+        <div class="nav-group"><a class="nav-parent" href="pay-bills.html"><span>▤</span> Pay bills</a>
           <div class="subnav">
             <a href="planned-bills.html" data-nav="planned">Planned bills</a>
-            <a href="auto-payments.html" data-nav="auto">Auto payments</a>
+            <a href="auto-payments.html" data-nav="auto" class="active" aria-current="page">Auto payments</a>
             <a href="manual-payments.html" data-nav="manual">Manual payments</a>
           </div></div>
       </nav>
       <div class="sidebar-bottom"><span class="avatar">CF</span><div><strong>My budget</strong><small>Frontend preview</small></div></div>
     </aside>
     <main class="main">
-      <header class="topbar"><span>Personal budget <span class="crumb">/ Pay bills</span></span><a href="login.html">Sign in</a></header>
+      <header class="topbar"><span>Personal budget <span class="crumb">/ Auto payments</span></span><a href="login.html">Sign in</a></header>
       <div class="content">
-        <div class="page-heading"><div><span class="eyebrow">BILL PAYMENT</span><h1>Pay bills</h1><p class="muted">Track what is funded and what has been paid.</p></div><div class="month-picker"><button id="prev-month" aria-label="Previous month">‹</button><strong id="month-label"></strong><button id="next-month" aria-label="Next month">›</button></div></div>
+        <div class="page-heading"><div><span class="eyebrow">BILL PAYMENT</span><h1>Auto payments</h1><p class="muted">Automatic payments that still need to be paid.</p></div><div class="month-picker"><button id="prev-month" aria-label="Previous month">‹</button><strong id="month-label"></strong><button id="next-month" aria-label="Next month">›</button></div></div>
         <div class="preview-banner"><span class="preview-dot"></span><strong>Sample budget</strong><span id="preview-message">October 2026 includes the statuses you provided. Changes are saved only in this browser.</span></div>
         <section class="stats" aria-label="Payment summary">
           <article class="stat"><span>Still to pay</span><strong id="due-total"></strong><small id="due-count"></small></article>
@@ -29,7 +29,7 @@
           <article class="stat"><span>Paid</span><strong id="paid-total"></strong><small id="paid-count"></small></article>
         </section>
         <section class="section">
-          <div class="section-head"><div><h2>Payment list</h2><p class="muted">Select a bill to view its full details.</p></div></div>
+          <div class="section-head"><div><h2>Auto payments</h2><p class="muted">Select a bill to view its full details.</p></div></div>
           <div class="bill-controls">
             <label><span class="sr-only">Search payee</span><input id="search" type="search" placeholder="Search payee"></label>
             <label><span class="sr-only">Filter by paycheck</span><select id="paycheck-filter"><option value="all">All paychecks</option><option value="1">Paycheck 1</option><option value="2">Paycheck 2</option><option value="3">Paycheck 3</option></select></label>

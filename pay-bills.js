@@ -1,6 +1,7 @@
 const money=n=>n===null?'—':new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(n);
 const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const params=new URLSearchParams(location.search);
+const pageView=document.body.dataset.pageView||'all';
 const requestedMonth=params.get('month');
 const date=/^\d{4}-(0[1-9]|1[0-2])$/.test(requestedMonth||'')
   ? new Date(Number(requestedMonth.slice(0,4)),Number(requestedMonth.slice(5))-1,1)
@@ -34,23 +35,26 @@ function paymentGroup(method){
   return 'other';
 }
 function render(){
-  const list=currentRows(), shown=list.filter(r=>
+  const list=currentRows(), scope=list.filter(r=>pageView==='all'||pageView==='planned'||paymentGroup(r.method)===pageView);
+  const shown=scope.filter(r=>
     r.payee.toLowerCase().includes($('search').value.trim().toLowerCase()) &&
     ($('paycheck-filter').value==='all'||r.paycheck===Number($('paycheck-filter').value)) &&
     ($('status-filter').value==='all'||status(r)===$('status-filter').value) &&
-    ($('method-filter').value==='all'||paymentGroup(r.method)===$('method-filter').value) &&
-    (!$('unpaid-only').checked||!r.paid)
+    (pageView!=='all'||$('method-filter').value==='all'||paymentGroup(r.method)===$('method-filter').value) &&
+    (pageView==='planned'||(!r.paid||pageView==='all'&&!$('unpaid-only').checked))
   ).sort((a,b)=>a.paycheck-b.paycheck||a.due-b.due||a.id-b.id);
   $('month-label').textContent=date.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  const monthParam='?month='+date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0');
+  document.querySelectorAll('.nav-group a').forEach(a=>{a.href=a.href.split('?')[0]+monthParam});
   $('preview-message').textContent=date.getFullYear()===2026&&date.getMonth()===9
     ? 'October 2026 includes the statuses you provided. Changes are saved only in this browser.'
     : 'Blank frequencies are treated as monthly in this preview. Quarterly and yearly schedules need their start months.';
   for(const [key,predicate] of [['due',r=>!r.paid],['funded',r=>r.funded&&!r.paid],['paid',r=>r.paid]]){
-    const group=list.filter(predicate);
+    const group=scope.filter(predicate);
     $(''+key+'-total').textContent=money(group.reduce((sum,r)=>sum+(r.amount||0),0));
     $(''+key+'-count').textContent=group.length+' bill'+(group.length===1?'':'s')+(group.some(r=>r.amount===null)?' · excludes blank amounts':'');
   }
-  $('visible-count').textContent=shown.length+' of '+list.length+' bills';
+  $('visible-count').textContent=shown.length+' of '+scope.length+' bills';
   $('payment-rows').innerHTML=shown.map(r=>`<tr>
     <td><button class="payee-button" data-detail="${r.id}">${escapeHtml(r.payee)}</button></td>
     <td>${r.due}</td><td><span class="pill">#${r.paycheck}</span></td>

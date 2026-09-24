@@ -21,7 +21,7 @@ function render(){
   const list=monthRows();
   const month=displayDate.getFullYear()+'-'+String(displayDate.getMonth()+1).padStart(2,'0');
   monthLabel.textContent=displayDate.toLocaleDateString('en-US',{month:'long',year:'numeric'});
-  for(const [id,view] of [['planned-link','all'],['auto-link','auto'],['manual-link','manual']])document.getElementById(id).href='pay-bills.html?month='+month+'&view='+view;
+  for(const [id,page] of [['planned-link','planned-bills.html'],['auto-link','auto-payments.html'],['manual-link','manual-payments.html']])document.getElementById(id).href=page+'?month='+month;
   const auto=list.filter(r=>!r.paid&&paymentGroup(r.method)==='auto');
   const manual=list.filter(r=>!r.paid&&paymentGroup(r.method)==='manual');
   document.getElementById('planned-total').textContent=money(list.reduce((sum,r)=>sum+(r.amount||0),0));
