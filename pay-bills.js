@@ -9,20 +9,15 @@ const date=/^\d{4}-(0[1-9]|1[0-2])$/.test(requestedMonth||'')
 const $=id=>document.getElementById(id);
 let selectedId=null;
 function storageKey(){return 'paywise-demo-payments-v1-'+date.getFullYear()+'-'+(date.getMonth()+1)}
-function applicable(){
-  if(date.getFullYear()===2026&&date.getMonth()===9)return rows;
-  // Blank frequency is treated as monthly in this preview; quarterly/yearly anchors need setup.
-  return rows.filter(r=>r.frequency==='monthly'||r.frequency==='');
-}
 function currentRows(){
-  let saved={};
-  try{saved=JSON.parse(localStorage.getItem(storageKey())||'{}')||{}}catch{}
-  return applicable().map(r=>({...r,funded:false,paid:false,...(date.getFullYear()===2026&&date.getMonth()===9?{funded:r.funded,paid:r.paid}:{}),...(saved[r.id]||{})}));
+  return BillStore.billsFor(date);
 }
 function save(id,field,value){
   let saved={};
   try{saved=JSON.parse(localStorage.getItem(storageKey())||'{}')||{}}catch{}
+  const current=currentRows().find(r=>r.id===id);
   saved[id]={...(saved[id]||{}),[field]:value};
+  if(field==='paid'&&value&&current)saved[id].snapshot={...current,paid:true};
   localStorage.setItem(storageKey(),JSON.stringify(saved));
   render();
   if($('bill-dialog').open)openDetails(id);

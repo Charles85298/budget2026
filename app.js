@@ -5,11 +5,7 @@ let displayDate=new Date(2026,9,1);
 const monthLabel=document.getElementById('month-label');
 const search=document.getElementById('bill-search');
 function monthRows(){
-  const october=displayDate.getFullYear()===2026&&displayDate.getMonth()===9;
-  const list=october?rows:rows.filter(r=>r.frequency==='monthly'||r.frequency==='');
-  let saved={};
-  try{saved=JSON.parse(localStorage.getItem('paywise-demo-payments-v1-'+displayDate.getFullYear()+'-'+(displayDate.getMonth()+1))||'{}')||{}}catch{}
-  return list.map(r=>({...r,funded:october?r.funded:false,paid:october?r.paid:false,...(saved[r.id]||{})}));
+  return BillStore.billsFor(displayDate);
 }
 function paymentGroup(method){
   const normalized=method.toLowerCase();

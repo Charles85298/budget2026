@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Bill management · Paywise</title><link rel="stylesheet" href="styles.css"></head>
+<body><div class="app-shell">
+<aside class="sidebar"><a class="brand" href="index.html"><span class="brand-mark">P</span> Paywise</a><div class="side-section">WORKSPACE</div>
+<nav aria-label="Main navigation"><a href="index.html"><span>▦</span> Overview</a><a href="index.html#paychecks"><span>◫</span> Paychecks</a>
+<div class="nav-group"><a class="nav-parent" href="pay-bills.html"><span>▤</span> Pay bills</a><div class="subnav"><a href="planned-bills.html">Planned bills</a><a href="auto-payments.html">Auto payments</a><a href="manual-payments.html">Manual payments</a></div></div>
+<a class="active" href="bill-management.html" aria-current="page"><span>⚙</span> Bill management</a></nav>
+<div class="sidebar-bottom"><span class="avatar">CF</span><div><strong>My budget</strong><small>Frontend preview</small></div></div></aside>
+<main class="main"><header class="topbar"><span>Personal budget <span class="crumb">/ Bill management</span></span><a href="login.html">Sign in</a></header>
+<div class="content"><div class="page-heading"><div><span class="eyebrow">RECURRING BILLS</span><h1>Bill management</h1><p class="muted">Add a bill, or change and remove upcoming bills.</p></div><button id="add-bill" class="button primary">+ Add bill</button></div>
+<div class="preview-banner"><span class="preview-dot"></span><strong>Frontend preview</strong><span>Changes are saved in this browser and appear on the dashboard and payment pages.</span></div>
+<section class="section"><div class="section-head"><div><h2>Choose a month</h2><p class="muted">Changes to existing bills begin in the selected month and continue forward.</p></div><label class="month-input-label">Start month <input id="start-month" type="month"></label></div>
+<div class="bill-controls"><label><span class="sr-only">Search bills</span><input id="manage-search" type="search" placeholder="Search bills"></label><span class="result-count" id="manage-count"></span></div>
+<div class="table-scroll"><table class="payment-table"><thead><tr><th>Payee</th><th>Due</th><th>Frequency</th><th>Paycheck</th><th class="right">Amount</th><th>Actions</th></tr></thead><tbody id="manage-rows"></tbody></table></div><p id="manage-empty" class="empty" hidden>No bills in this month.</p></section>
+<footer>Future changes remain in this browser until Supabase is connected.</footer></div></main></div>
+<dialog id="edit-dialog" class="bill-dialog manage-dialog" aria-labelledby="form-title"><div class="dialog-head"><div><span class="eyebrow">BILL MANAGEMENT</span><h2 id="form-title">Add bill</h2></div><button type="button" id="close-form" class="close-button" aria-label="Close form">×</button></div>
+<form id="bill-form"><div class="form-grid">
+<label class="wide">Payee <input name="payee" required maxlength="120"></label>
+<label>Amount <input name="amount" type="number" min="0" step="0.01" placeholder="0.00"></label>
+<label>Due day <input name="due" type="number" min="1" max="31" required></label>
+<label>Frequency <select name="frequency" required><option value="monthly">Monthly</option><option value="quarterly">Quarterly</option><option value="yearly">Yearly</option><option value="one-time">One-time</option></select></label>
+<label>Paycheck <select name="paycheck" required><option value="1">Paycheck 1</option><option value="2">Paycheck 2</option><option value="3">Paycheck 3</option></select></label>
+<label>Category <input name="category" maxlength="60"></label>
+<label>Payment method <select name="method"><option value="MANUAL">Manual</option><option value="Auto - bill pay">Auto - bill pay</option><option value="Auto - Biz">Auto - Biz</option><option value="Savings">Savings</option><option value="BIZ Savings">Business savings</option></select></label>
+<label>Phone <input name="phone" type="tel" maxlength="50"></label>
+<label>Website <input name="website" type="url" placeholder="https://"></label>
+<label>Interest rate (%) <input name="interestRate" type="number" min="0" step="0.001"></label>
+<label>Payoff balance <input name="payoff" type="number" min="0" step="0.01"></label>
+<label>Minimum payment <input name="minimumPayment" type="number" min="0" step="0.01"></label>
+</div><p class="form-scope" id="form-scope"></p><div class="dialog-actions"><button type="button" id="cancel-form" class="button secondary">Cancel</button><button type="submit" class="button primary">Save bill</button></div></form></dialog>
+<script src="bills-data.js"></script><script src="bill-store.js"></script><script src="bill-management.js"></script></body></html>

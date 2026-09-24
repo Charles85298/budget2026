@@ -1,0 +1,41 @@
+// Frontend data adapter. Supabase can replace this localStorage implementation later.
+const BillStore=(()=>{
+  const KEY='paywise-demo-bill-management-v1';
+  const read=()=>{try{const data=JSON.parse(localStorage.getItem(KEY)||'{}');return {added:data.added||[],changes:data.changes||[],removed:data.removed||[]}}catch{return {added:[],changes:[],removed:[]}}};
+  const write=data=>localStorage.setItem(KEY,JSON.stringify(data));
+  const key=date=>date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0');
+  const statuses=date=>{try{return JSON.parse(localStorage.getItem('paywise-demo-payments-v1-'+date.getFullYear()+'-'+(date.getMonth()+1))||'{}')||{}}catch{return {}}};
+  const monthNumber=value=>Number(value.slice(0,4))*12+Number(value.slice(5,7))-1;
+  const occurs=(bill,month,anchor)=>{
+    const difference=monthNumber(month)-monthNumber(anchor);
+    if(difference<0)return false;
+    if(bill.frequency==='quarterly')return difference%3===0;
+    if(bill.frequency==='yearly')return difference%12===0;
+    if(bill.frequency==='one-time')return difference===0;
+    return true; // Blank sample frequencies are treated as monthly.
+  };
+  function billsFor(date){
+    const month=key(date), sample=month==='2026-10', model=read(), saved=statuses(date);
+    const base=rows.filter(b=>sample||(month>='2026-10'&&(
+      b.frequency==='monthly'||!b.frequency||model.changes.some(c=>c.id===b.id&&c.from<=month)
+    )));
+    const custom=model.added.filter(b=>month>=b.startMonth&&(
+      occurs(b,month,b.startMonth)||model.changes.some(c=>c.id===b.id&&c.from<=month)
+    ));
+    return [...base,...custom].flatMap(original=>{
+      const paid=(saved[original.id]?.paid ?? (sample?original.paid:false));
+      if(paid)return [{...original,...(saved[original.id]?.snapshot||{}),...(saved[original.id]||{})}];
+      const changes=model.changes.filter(c=>c.id===original.id&&c.from<=month).sort((a,b)=>a.from.localeCompare(b.from));
+      const latest=changes.at(-1);
+      const bill=latest?{...original,...latest.fields}:original;
+      if(latest&&!occurs(bill,month,latest.from))return [];
+      const removal=model.removed.find(r=>r.id===original.id&&r.from<=month);
+      if(removal)return [];
+      return [{...bill,funded:sample?original.funded:false,paid:sample?original.paid:false,...(saved[original.id]||{})}];
+    });
+  }
+  function add(fields,from){const model=read();const id=Date.now()+Math.floor(Math.random()*100000);model.added.push({id,...fields,startMonth:from,funded:false,paid:false,month:'',year:''});write(model);return id}
+  function change(id,fields,from){const model=read();model.changes=model.changes.filter(c=>!(c.id===id&&c.from===from));model.changes.push({id,from,fields});write(model)}
+  function removeFuture(id,from){const model=read();model.removed=model.removed.filter(r=>r.id!==id);model.removed.push({id,from});write(model)}
+  return {billsFor,add,change,removeFuture,key};
+})();
