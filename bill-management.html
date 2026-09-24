@@ -28,4 +28,9 @@
 <label>Payoff balance <input name="payoff" type="number" min="0" step="0.01"></label>
 <label>Minimum payment <input name="minimumPayment" type="number" min="0" step="0.01"></label>
 </div><p class="form-scope" id="form-scope"></p><div class="dialog-actions"><button type="button" id="cancel-form" class="button secondary">Cancel</button><button type="submit" class="button primary">Save bill</button></div></form></dialog>
+<dialog id="details-dialog" class="bill-dialog" aria-labelledby="details-title">
+  <div class="dialog-head"><div><span class="eyebrow">BILL DETAILS</span><h2 id="details-title"></h2></div><button type="button" id="close-details" class="close-button" aria-label="Close details">×</button></div>
+  <div id="details-grid" class="detail-grid"></div>
+  <div class="dialog-actions"><button type="button" id="done-details" class="button secondary">Close</button></div>
+</dialog>
 <script src="bills-data.js"></script><script src="bill-store.js"></script><script src="bill-management.js"></script></body></html>

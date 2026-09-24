@@ -9,7 +9,7 @@ const selectedDate=()=>{const [year,month]=$('start-month').value.split('-').map
 function visible(){return BillStore.billsFor(selectedDate()).filter(r=>r.payee.toLowerCase().includes($('manage-search').value.trim().toLowerCase())).sort((a,b)=>a.due-b.due||a.id-b.id)}
 function render(){
   const list=visible();$('manage-count').textContent=list.length+' bills';
-  $('manage-rows').innerHTML=list.map(r=>`<tr><td class="payee">${escapeHtml(r.payee)}</td><td>${r.due}</td><td>${escapeHtml(r.frequency||'Monthly*')}</td><td><span class="pill">#${r.paycheck}</span></td><td class="right amount">${money(r.amount)}</td><td class="row-actions">${r.paid?'<span class="muted">Paid</span>':`<button type="button" data-action="edit" data-id="${r.id}">Edit future</button><button type="button" data-action="delete" data-id="${r.id}">Delete future</button>`}</td></tr>`).join('');
+  $('manage-rows').innerHTML=list.map(r=>`<tr><td class="payee"><button type="button" class="payee-button" data-action="details" data-id="${r.id}" aria-label="View details for ${escapeHtml(r.payee)}">${escapeHtml(r.payee)}</button></td><td>${r.due}</td><td>${escapeHtml(r.frequency||'Monthly*')}</td><td><span class="pill">#${r.paycheck}</span></td><td class="right amount">${money(r.amount)}</td><td class="row-actions">${r.paid?'<span class="muted">Paid</span>':`<button type="button" data-action="edit" data-id="${r.id}">Edit future</button><button type="button" data-action="delete" data-id="${r.id}">Delete future</button>`}</td></tr>`).join('');
   $('manage-empty').hidden=list.length>0;
 }
 function openForm(id=null){
@@ -25,13 +25,44 @@ function openForm(id=null){
   $('edit-dialog').showModal();
   $('bill-form').elements.payee.focus();
 }
+function detail(label,value){
+  return `<div class="detail"><span>${label}</span><strong>${escapeHtml(value===null||value===undefined||value===''?'—':value)}</strong></div>`;
+}
+function openDetails(id){
+  const bill=BillStore.billsFor(selectedDate()).find(r=>r.id===id);
+  if(!bill)return;
+  $('details-title').textContent=bill.payee;
+  const phone=/^[+*\d() .-]+$/.test(bill.phone||'')&&bill.phone
+    ? `<a href="tel:${encodeURIComponent(bill.phone.replace(/[^+*\d]/g,''))}">${escapeHtml(bill.phone)}</a>`
+    : escapeHtml(bill.phone||'—');
+  let website=escapeHtml(bill.website||'—');
+  try{const url=new URL(bill.website);if(['https:','http:'].includes(url.protocol))website=`<a href="${escapeHtml(url.href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(bill.website)}</a>`}catch{}
+  const [year,month]=$('start-month').value.split('-').map(Number);
+  $('details-grid').innerHTML=[
+    detail('Amount',money(bill.amount)),detail('Due day',bill.due),
+    detail('Paycheck','Paycheck '+bill.paycheck),detail('Category',bill.category),
+    detail('Payment method',bill.method),detail('Frequency',bill.frequency||'Monthly (assumed)'),
+    `<div class="detail"><span>Phone</span><strong>${phone}</strong></div>`,
+    `<div class="detail"><span>Website</span><strong>${website}</strong></div>`,
+    detail('Interest rate',bill.interestRate===null?null:bill.interestRate+'%'),
+    detail('Payoff balance',bill.payoff===null?null:money(bill.payoff)),
+    detail('Minimum payment',bill.minimumPayment===null?null:money(bill.minimumPayment)),
+    detail('Planned month',new Date(year,month-1,1).toLocaleDateString('en-US',{month:'long',year:'numeric'})),
+    detail('Funded',bill.funded?'Yes':'No'),detail('Paid',bill.paid?'Yes':'No')
+  ].join('');
+  $('details-dialog').showModal();
+}
 $('add-bill').onclick=()=>openForm();
 $('close-form').onclick=$('cancel-form').onclick=()=>$('edit-dialog').close();
 $('edit-dialog').addEventListener('click',e=>{if(e.target===$('edit-dialog'))$('edit-dialog').close()});
+$('close-details').onclick=$('done-details').onclick=()=>$('details-dialog').close();
+$('details-dialog').addEventListener('click',e=>{if(e.target===$('details-dialog'))$('details-dialog').close()});
 $('manage-rows').addEventListener('click',e=>{
   const button=e.target.closest('[data-action]');if(!button)return;
   const id=Number(button.dataset.id), bill=BillStore.billsFor(selectedDate()).find(b=>b.id===id);
-  if(!bill||bill.paid)return;
+  if(!bill)return;
+  if(button.dataset.action==='details'){openDetails(id);return}
+  if(bill.paid)return;
   if(button.dataset.action==='edit')openForm(id);
   else if(confirm(`Delete future ${bill.payee} bills starting ${$('start-month').value}? Paid bills will remain.`)){BillStore.removeFuture(id,$('start-month').value);render()}
 });
