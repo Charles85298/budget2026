@@ -2,7 +2,7 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Bill management · Financial Freedom</title><link rel="icon" type="image/png" href="assets/financial-freedom-icon.png"><link rel="stylesheet" href="styles.css"></head>
 <body><div class="app-shell">
 <aside class="sidebar"><a class="brand" href="index.html"><img class="brand-logo" src="assets/financial-freedom-icon.png" alt=""> <span class="brand-name">Financial Freedom</span></a><div class="side-section">WORKSPACE</div>
-<nav aria-label="Main navigation"><a href="index.html"><span>▦</span> Overview</a><a href="index.html#paychecks"><span>◫</span> Paychecks</a>
+<nav aria-label="Main navigation"><a href="index.html"><span>▦</span> Overview</a><a href="income.html"><span>◫</span> Income &amp; paychecks</a>
 <div class="nav-group"><a class="nav-parent" href="pay-bills.html"><span>▤</span> Pay bills</a><div class="subnav"><a href="planned-bills.html">Planned bills</a><a href="auto-payments.html">Auto payments</a><a href="manual-payments.html">Manual payments</a><a href="quarterly-funds.html">Quarterly funds</a></div></div>
 <a class="active" href="bill-management.html" aria-current="page"><span>⚙</span> Bill management</a></nav>
 <div class="sidebar-bottom"><span class="avatar">CF</span><div><strong>My budget</strong><small>Frontend preview</small></div></div></aside>
@@ -10,7 +10,7 @@
 <div class="content"><div class="page-heading"><div><span class="eyebrow">RECURRING BILLS</span><h1>Bill management</h1><p class="muted">Add a bill, or change and remove upcoming bills.</p></div><button id="add-bill" class="button primary">+ Add bill</button></div>
 <div class="preview-banner"><span class="preview-dot"></span><strong>Frontend preview</strong><span>Changes are saved in this browser and appear on the dashboard and payment pages.</span></div>
 <section class="section"><div class="section-head"><div><h2>Choose a month</h2><p class="muted">Changes to existing bills begin in the selected month and continue forward.</p></div><label class="month-input-label">Start month <input id="start-month" type="month"></label></div>
-<div class="bill-controls"><label><span class="sr-only">Search bills</span><input id="manage-search" type="search" placeholder="Search bills"></label><span class="result-count" id="manage-count"></span></div>
+<div class="bill-controls"><label><span class="sr-only">Search bills</span><input id="manage-search" type="search" placeholder="Search bills"></label><button class="button secondary" id="export-managed">Download CSV</button><span class="result-count" id="manage-count"></span></div>
 <div class="table-scroll"><table class="payment-table"><thead><tr><th>Payee</th><th>Due</th><th>Frequency</th><th>Paycheck</th><th class="right">Amount</th><th>Actions</th></tr></thead><tbody id="manage-rows"></tbody></table></div><p id="manage-empty" class="empty" hidden>No bills in this month.</p></section>
 <footer>Future changes remain in this browser until Supabase is connected.</footer></div></main></div>
 <dialog id="edit-dialog" class="bill-dialog manage-dialog" aria-labelledby="form-title"><div class="dialog-head"><div><span class="eyebrow">BILL MANAGEMENT</span><h2 id="form-title">Add bill</h2></div><button type="button" id="close-form" class="close-button" aria-label="Close form">×</button></div>
@@ -42,4 +42,4 @@
   <div id="details-grid" class="detail-grid"></div>
   <div class="dialog-actions"><button type="button" id="done-details" class="button secondary">Close</button></div>
 </dialog>
-<script src="bills-data.js"></script><script src="bill-store.js"></script><script src="bill-management.js"></script></body></html>
+<script src="bills-data.js"></script><script src="bill-store.js"></script><script src="export-csv.js"></script><script src="bill-management.js"></script></body></html>

@@ -109,4 +109,7 @@ $('bill-form').addEventListener('submit',e=>{
 });
 $('start-month').addEventListener('change',render);
 $('manage-search').addEventListener('input',render);
+$('export-managed').onclick=()=>CsvExport.download('financial-freedom-bill-management-'+$('start-month').value+'.csv',
+  ['Month','Payee','Due day','Frequency','Paycheck','Category','Payment method','Planned amount','Amount to pay','Phone','Website','Interest rate','Payoff balance','Minimum payment','First quarterly due month','Funding paycheck','Opening fund balance','Paid'],
+  visible().map(r=>[$('start-month').value,r.payee,r.due,r.frequency||'monthly (assumed)',r.paycheck,r.category,r.method,r.plannedAmount,r.amount,r.phone,r.website,r.interestRate,r.payoff,r.minimumPayment,r.firstDueMonth||'',r.fundingPaycheck||'',r.openingFundBalance??'',r.paid?'Yes':'No']));
 render();

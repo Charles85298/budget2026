@@ -32,6 +32,13 @@ $('fund-list').addEventListener('submit',event=>{
   try{FundStore.setContribution(Number(form.dataset.id),date,input.value,true);render()}catch(error){input.setCustomValidity(error.message);input.reportValidity();input.setCustomValidity('')}
 });
 $('fund-list').addEventListener('click',event=>{const button=event.target.closest('[data-undo]');if(button){FundStore.setContribution(Number(button.dataset.undo),date,0,false);render()}});
+$('export-funds').onclick=()=>CsvExport.download('financial-freedom-quarterly-funds-'+BillStore.key(date)+'.csv',
+  ['Month','Payee','Quarterly bill amount','Due day','Next due month','Funding paycheck','Suggested contribution','Funded contribution','Contribution funded','Opening fund balance','Current fund balance','Bill due this month','Actual bill payment','Payment date','Unrecorded paid bills'],
+  BillStore.quarterlyPlans(date).map(plan=>{
+    const entry=FundStore.entry(plan,date),balance=FundStore.balance(plan,date),bill=BillStore.billsFor(date).find(r=>r.id===plan.id);
+    const next=FundStore.nextDue(plan,bill?.paid?new Date(date.getFullYear(),date.getMonth()+1,1):date);
+    return [BillStore.key(date),plan.payee,plan.amount,plan.due,BillStore.key(next),entry.paycheck,entry.contribution,entry.fundedAmount,entry.funded?'Yes':'No',plan.openingFundBalance,balance.amount,bill?.amount??null,bill?.actualAmount??null,bill?.paidDate??'',balance.unrecorded];
+  }));
 $('prev-month').onclick=()=>{date.setMonth(date.getMonth()-1);render()};
 $('next-month').onclick=()=>{date.setMonth(date.getMonth()+1);render()};
 render();

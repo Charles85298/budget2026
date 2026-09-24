@@ -8,7 +8,7 @@
       <div class="side-section">WORKSPACE</div>
       <nav aria-label="Main navigation">
         <a href="index.html"><span>▦</span> Overview</a>
-        <a href="index.html#paychecks"><span>◫</span> Paychecks</a>
+        <a href="income.html"><span>◫</span> Income &amp; paychecks</a>
         <div class="nav-group"><a class="nav-parent" href="pay-bills.html"><span>▤</span> Pay bills</a>
           <div class="subnav">
             <a href="planned-bills.html" data-nav="planned" class="active" aria-current="page">Planned bills</a>
@@ -31,7 +31,7 @@
           <article class="stat"><span>Paid</span><strong id="paid-total"></strong><small id="paid-count"></small></article>
         </section>
         <section class="section">
-          <div class="section-head"><div><h2>Planned bills</h2><p class="muted">Select a bill to view its full details.</p></div></div>
+          <div class="section-head"><div><h2>Planned bills</h2><p class="muted">Select a bill to view its full details.</p></div><button class="button secondary" id="export-bills">Download CSV</button></div>
           <div class="bill-controls">
             <label><span class="sr-only">Search payee</span><input id="search" type="search" placeholder="Search payee"></label>
             <label><span class="sr-only">Filter by paycheck</span><select id="paycheck-filter"><option value="all">All paychecks</option><option value="1">Paycheck 1</option><option value="2">Paycheck 2</option><option value="3">Paycheck 3</option></select></label>
@@ -63,5 +63,5 @@
     </form>
     <div class="dialog-actions"><button id="detail-funded" class="button secondary" type="button"></button><button id="detail-paid" class="button primary" type="button"></button></div>
   </dialog>
-  <script src="bills-data.js"></script><script src="bill-store.js"></script><script src="fund-store.js"></script><script src="pay-bills.js"></script>
+  <script src="bills-data.js"></script><script src="bill-store.js"></script><script src="export-csv.js"></script><script src="fund-store.js"></script><script src="pay-bills.js"></script>
 </body></html>

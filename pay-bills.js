@@ -34,15 +34,16 @@ function paymentGroup(method){
   if(normalized.includes('manual')||normalized.includes('savings'))return 'manual';
   return 'other';
 }
-function render(){
-  const list=currentRows(), scope=list.filter(r=>pageView==='all'||pageView==='planned'||paymentGroup(r.method)===pageView);
-  const shown=scope.filter(r=>
+function scopedRows(){return currentRows().filter(r=>pageView==='all'||pageView==='planned'||paymentGroup(r.method)===pageView)}
+function filteredRows(){return scopedRows().filter(r=>
     r.payee.toLowerCase().includes($('search').value.trim().toLowerCase()) &&
     ($('paycheck-filter').value==='all'||r.paycheck===Number($('paycheck-filter').value)) &&
     ($('status-filter').value==='all'||status(r)===$('status-filter').value) &&
     (pageView!=='all'||$('method-filter').value==='all'||paymentGroup(r.method)===$('method-filter').value) &&
     (pageView==='planned'||(!r.paid||pageView==='all'&&!$('unpaid-only').checked))
-  ).sort((a,b)=>a.paycheck-b.paycheck||a.due-b.due||a.id-b.id);
+  ).sort((a,b)=>a.paycheck-b.paycheck||a.due-b.due||a.id-b.id)}
+function render(){
+  const scope=scopedRows(),shown=filteredRows();
   $('month-label').textContent=date.toLocaleDateString('en-US',{month:'long',year:'numeric'});
   const monthParam='?month='+date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0');
   document.querySelectorAll('.nav-group a').forEach(a=>{a.href=a.href.split('?')[0]+monthParam});
@@ -108,6 +109,9 @@ $('payment-form').addEventListener('submit',event=>{
   if(!Number.isFinite(actualAmount)||actualAmount<0)return;
   updateBill(selectedId,{paid:true,actualAmount:Math.round(actualAmount*100)/100,paidDate:paymentDate.value});
 });
+$('export-bills').onclick=()=>CsvExport.download('financial-freedom-'+(pageView==='all'?'pay-bills':pageView==='planned'?'planned-bills':pageView+'-payments')+'-'+BillStore.key(date)+'.csv',
+  ['Month','Payee','Due day','Paycheck','Category','Payment method','Frequency','Planned amount','Amount to pay','Actual amount paid','Payment date','Funded','Paid','Phone','Website','Interest rate','Payoff balance','Minimum payment'],
+  filteredRows().map(r=>[BillStore.key(date),r.payee,r.due,r.paycheck,r.category,r.method,r.frequency,r.plannedAmount,r.amount,r.actualAmount,r.paidDate,r.funded?'Yes':'No',r.paid?'Yes':'No',r.phone,r.website,r.interestRate,r.payoff,r.minimumPayment]));
 $('amount-form').addEventListener('submit',event=>{
   event.preventDefault();
   const input=$('amount-to-pay');
