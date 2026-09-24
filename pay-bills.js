@@ -78,8 +78,17 @@ function openDetails(id){
   ].join('');
   $('detail-funded').textContent=r.funded?'Mark not funded':'Mark funded';
   $('detail-paid').textContent=r.paid?'Mark unpaid':'Mark paid';
+  $('amount-to-pay').value=r.amount===null?'':r.amount.toFixed(2);
   if(!$('bill-dialog').open)$('bill-dialog').showModal();
 }
+$('amount-form').addEventListener('submit',event=>{
+  event.preventDefault();
+  const input=$('amount-to-pay');
+  if(!input.reportValidity()||selectedId===null)return;
+  const amount=Number(input.value);
+  if(!Number.isFinite(amount)||amount<0)return;
+  save(selectedId,'amount',Math.round(amount*100)/100);
+});
 $('payment-rows').addEventListener('click',e=>{const button=e.target.closest('[data-detail]');if(button)openDetails(Number(button.dataset.detail))});
 $('payment-rows').addEventListener('change',e=>{const input=e.target.closest('input[data-field]');if(input)save(Number(input.dataset.id),input.dataset.field,input.checked)});
 for(const id of ['search','paycheck-filter','status-filter','method-filter','unpaid-only'])$(id).addEventListener(id==='search'?'input':'change',render);

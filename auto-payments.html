@@ -49,6 +49,11 @@
   <dialog id="bill-dialog" class="bill-dialog" aria-labelledby="dialog-title">
     <div class="dialog-head"><div><span class="eyebrow">BILL DETAILS</span><h2 id="dialog-title"></h2></div><button id="close-dialog" class="close-button" aria-label="Close details">×</button></div>
     <div id="detail-grid" class="detail-grid"></div>
+    <form id="amount-form" class="amount-form">
+      <label for="amount-to-pay">Amount to pay this month</label>
+      <div class="amount-form-row"><input id="amount-to-pay" type="number" min="0" step="0.01" placeholder="Enter amount" required><button class="button secondary" type="submit">Save amount</button></div>
+      <small>This changes only this month's bill, not future bills.</small>
+    </form>
     <div class="dialog-actions"><button id="detail-funded" class="button secondary" type="button"></button><button id="detail-paid" class="button primary" type="button"></button></div>
   </dialog>
   <script src="bills-data.js"></script><script src="bill-store.js"></script><script src="pay-bills.js"></script>
