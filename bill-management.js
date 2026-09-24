@@ -5,16 +5,36 @@ const now=new Date(), currentMonth=BillStore.key(now);
 $('start-month').min=currentMonth;
 $('start-month').value=currentMonth<='2026-10'?'2026-10':currentMonth;
 let editing=null;
+let sortKey='due',sortDirection='asc';
 const selectedDate=()=>{const [year,month]=$('start-month').value.split('-').map(Number);return new Date(year,month-1,1)};
 function managedBills(){
   const due=BillStore.billsFor(selectedDate());
   const ids=new Set(due.map(b=>b.id));
   return [...due,...BillStore.quarterlyPlans(selectedDate()).filter(b=>!ids.has(b.id)).map(b=>({...b,paid:false,plannedAmount:b.amount}))];
 }
-function visible(){return managedBills().filter(r=>r.payee.toLowerCase().includes($('manage-search').value.trim().toLowerCase())).sort((a,b)=>a.due-b.due||a.id-b.id)}
+function sortValue(bill,key){
+  if(key==='frequency')return bill.frequency||'monthly';
+  return bill[key];
+}
+function visible(){
+  const direction=sortDirection==='asc'?1:-1;
+  return managedBills().filter(r=>r.payee.toLowerCase().includes($('manage-search').value.trim().toLowerCase())).sort((a,b)=>{
+    const left=sortValue(a,sortKey),right=sortValue(b,sortKey);
+    if(left===null||left===undefined)return right===null||right===undefined?a.id-b.id:1;
+    if(right===null||right===undefined)return -1;
+    const comparison=typeof left==='number'&&typeof right==='number'
+      ?left-right:String(left).localeCompare(String(right),undefined,{sensitivity:'base',numeric:true});
+    return comparison*direction||a.payee.localeCompare(b.payee,undefined,{sensitivity:'base'})||a.id-b.id;
+  });
+}
 function toggleQuarterly(){const quarterly=$('bill-form').elements.frequency.value==='quarterly';$('quarterly-fields').hidden=!quarterly;$('bill-form').elements.firstDueMonth.required=quarterly}
 function render(){
   const list=visible();$('manage-count').textContent=list.length+' bills';
+  document.querySelectorAll('.manage-table thead [data-sort]').forEach(button=>{
+    const th=button.closest('th'),active=button.dataset.sort===sortKey;
+    th.setAttribute('aria-sort',active?(sortDirection==='asc'?'ascending':'descending'):'none');
+    button.querySelector('.sort-arrow').textContent=active?(sortDirection==='asc'?'↑':'↓'):'';
+  });
   $('manage-rows').innerHTML=list.map(r=>`<tr><td class="payee"><button type="button" class="payee-button" data-action="details" data-id="${r.id}" aria-label="View details for ${escapeHtml(r.payee)}">${escapeHtml(r.payee)}</button></td><td>${r.due}</td><td>${escapeHtml(r.frequency||'Monthly*')}</td><td><span class="pill">#${r.paycheck}</span></td><td class="right amount">${money(r.amount)}</td><td class="row-actions">${r.paid&&r.frequency!=='quarterly'?'<span class="muted">Paid</span>':`<button type="button" data-action="edit" data-id="${r.id}">Edit future</button><button type="button" data-action="delete" data-id="${r.id}">Delete future</button>`}</td></tr>`).join('');
   $('manage-empty').hidden=list.length>0;
 }
@@ -109,6 +129,12 @@ $('bill-form').addEventListener('submit',e=>{
 });
 $('start-month').addEventListener('change',render);
 $('manage-search').addEventListener('input',render);
+document.querySelector('.manage-table thead').addEventListener('click',event=>{
+  const button=event.target.closest('[data-sort]');if(!button)return;
+  if(sortKey===button.dataset.sort)sortDirection=sortDirection==='asc'?'desc':'asc';
+  else{sortKey=button.dataset.sort;sortDirection='asc'}
+  render();
+});
 $('export-managed').onclick=()=>CsvExport.download('financial-freedom-bill-management-'+$('start-month').value+'.csv',
   ['Month','Payee','Due day','Frequency','Paycheck','Category','Payment method','Planned amount','Amount to pay','Phone','Website','Interest rate','Payoff balance','Minimum payment','First quarterly due month','Funding paycheck','Opening fund balance','Paid'],
   visible().map(r=>[$('start-month').value,r.payee,r.due,r.frequency||'monthly (assumed)',r.paycheck,r.category,r.method,r.plannedAmount,r.amount,r.phone,r.website,r.interestRate,r.payoff,r.minimumPayment,r.firstDueMonth||'',r.fundingPaycheck||'',r.openingFundBalance??'',r.paid?'Yes':'No']));
