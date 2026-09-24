@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in · Paywise</title><link rel="stylesheet" href="styles.css">
+</head>
+<body class="login-page">
+  <main class="login-shell">
+    <section class="login-aside" aria-label="About Paywise">
+      <a class="brand brand-light" href="index.html"><span class="brand-mark">P</span> Paywise</a>
+      <div class="aside-copy"><span class="eyebrow">YOUR MONEY, IN VIEW</span><h1>Know what each paycheck needs to cover.</h1><p>See your upcoming bills, assigned paychecks, and what remains for the month in one place.</p></div>
+      <div class="aside-foot">A clearer way to plan the month.</div>
+    </section>
+    <section class="login-content">
+      <div class="login-card">
+        <span class="mobile-brand brand"><span class="brand-mark">P</span> Paywise</span>
+        <span class="eyebrow">WELCOME BACK</span><h2>Sign in to your budget</h2>
+        <p class="muted">Your bills and paycheck plan, all together.</p>
+        <form id="login-form">
+          <label for="email">Email address</label><input id="email" type="email" autocomplete="username" placeholder="you@example.com" required>
+          <label for="password">Password</label><div class="password-wrap"><input id="password" type="password" autocomplete="current-password" placeholder="Enter your password" required><button type="button" id="show-password" aria-label="Show password">Show</button></div>
+          <button class="button primary sign-in" type="submit">Sign in</button>
+        </form>
+        <p class="demo-note">Frontend preview: sign-in is not connected yet. No credentials are saved.</p>
+        <a class="demo-link" href="index.html">Explore the sample dashboard →</a>
+      </div>
+    </section>
+  </main>
+  <script src="login.js"></script>
+</body>
+</html>

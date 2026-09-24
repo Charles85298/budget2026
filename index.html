@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard · Paywise</title><link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="index.html"><span class="brand-mark">P</span> Paywise</a>
+      <div class="side-section">WORKSPACE</div>
+      <nav aria-label="Main navigation">
+        <a class="active" href="index.html" aria-current="page"><span>▦</span> Overview</a>
+        <a href="#paychecks"><span>◫</span> Paychecks</a>
+        <a href="#bills"><span>▤</span> Bills</a>
+      </nav>
+      <div class="sidebar-bottom"><span class="avatar">CF</span><div><strong>My budget</strong><small>Frontend preview</small></div></div>
+    </aside>
+    <main class="main">
+      <header class="topbar"><span>Personal budget <span class="crumb">/ Overview</span></span><a href="login.html">Sign in</a></header>
+      <div class="content">
+        <div class="page-heading"><div><span class="eyebrow">MONTHLY OVERVIEW</span><h1>Your budget, at a glance</h1><p class="muted">See what is planned for each paycheck.</p></div><div class="month-picker"><button id="prev-month" aria-label="Previous month">‹</button><strong id="month-label"></strong><button id="next-month" aria-label="Next month">›</button></div></div>
+        <div class="preview-banner"><span class="preview-dot"></span><strong>Sample budget</strong><span>This dashboard uses the bills you shared. Income has not been entered yet.</span></div>
+        <section class="stats" aria-label="Monthly summary">
+          <article class="stat"><span>Planned bills</span><strong id="planned-total"></strong><small id="bill-count"></small></article>
+          <article class="stat"><span>Auto payments</span><strong id="auto-total"></strong><small>Across all paychecks</small></article>
+          <article class="stat"><span>Manual payments</span><strong id="manual-total"></strong><small>Across all paychecks</small></article>
+        </section>
+        <section id="paychecks" class="section"><div class="section-head"><div><h2>By paycheck</h2><p class="muted">Bills grouped by your assigned paycheck.</p></div></div><div id="paycheck-grid" class="paycheck-grid"></div></section>
+        <section id="bills" class="section"><div class="section-head"><div><h2>Upcoming bills</h2><p class="muted">Your planned payments for this month.</p></div><label class="search-label"><span class="sr-only">Search bills</span><input id="bill-search" type="search" placeholder="Search bills"></label></div><div class="table-scroll"><table><thead><tr><th>Payee</th><th>Due</th><th>Category</th><th>Paycheck</th><th>Payment</th><th class="right">Amount</th></tr></thead><tbody id="bill-rows"></tbody></table></div><p id="empty-state" class="empty" hidden>No bills match your search.</p></section>
+        <footer>Frontend draft · Recurring bill generation and sign-in will connect to Supabase later.</footer>
+      </div>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
