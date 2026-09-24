@@ -22,9 +22,9 @@
         <div class="page-heading"><div><span class="eyebrow">MONTHLY OVERVIEW</span><h1>Your budget, at a glance</h1><p class="muted">See what is planned for each paycheck.</p></div><div class="month-picker"><button id="prev-month" aria-label="Previous month">‹</button><strong id="month-label"></strong><button id="next-month" aria-label="Next month">›</button></div></div>
         <div class="preview-banner"><span class="preview-dot"></span><strong>Sample budget</strong><span>This dashboard uses the bills you shared. Income has not been entered yet.</span></div>
         <section class="stats" aria-label="Monthly summary">
-          <article class="stat"><span>Planned bills</span><strong id="planned-total"></strong><small id="bill-count"></small></article>
-          <article class="stat"><span>Auto payments</span><strong id="auto-total"></strong><small>Across all paychecks</small></article>
-          <article class="stat"><span>Manual payments</span><strong id="manual-total"></strong><small>Across all paychecks</small></article>
+          <a class="stat stat-link" id="planned-link" href="pay-bills.html?view=all"><span>Planned bills</span><strong id="planned-total"></strong><small id="bill-count"></small><span class="stat-arrow" aria-hidden="true">↗</span></a>
+          <a class="stat stat-link" id="auto-link" href="pay-bills.html?view=auto"><span>Auto payments to pay</span><strong id="auto-total"></strong><small id="auto-count"></small><span class="stat-arrow" aria-hidden="true">↗</span></a>
+          <a class="stat stat-link" id="manual-link" href="pay-bills.html?view=manual"><span>Manual payments to pay</span><strong id="manual-total"></strong><small id="manual-count"></small><span class="stat-arrow" aria-hidden="true">↗</span></a>
         </section>
         <section id="paychecks" class="section"><div class="section-head"><div><h2>By paycheck</h2><p class="muted">Bills grouped by your assigned paycheck.</p></div></div><div id="paycheck-grid" class="paycheck-grid"></div></section>
         <section id="bills" class="section"><div class="section-head"><div><h2>Upcoming bills</h2><p class="muted">Your planned payments for this month.</p></div><label class="search-label"><span class="sr-only">Search bills</span><input id="bill-search" type="search" placeholder="Search bills"></label></div><div class="table-scroll"><table><thead><tr><th>Payee</th><th>Due</th><th>Category</th><th>Paycheck</th><th>Payment</th><th class="right">Amount</th></tr></thead><tbody id="bill-rows"></tbody></table></div><p id="empty-state" class="empty" hidden>No bills match your search.</p></section>
@@ -32,6 +32,6 @@
       </div>
     </main>
   </div>
-  <script src="app.js"></script>
+  <script src="bills-data.js"></script><script src="app.js"></script>
 </body>
 </html>

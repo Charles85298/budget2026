@@ -29,6 +29,8 @@
             <label><span class="sr-only">Search payee</span><input id="search" type="search" placeholder="Search payee"></label>
             <label><span class="sr-only">Filter by paycheck</span><select id="paycheck-filter"><option value="all">All paychecks</option><option value="1">Paycheck 1</option><option value="2">Paycheck 2</option><option value="3">Paycheck 3</option></select></label>
             <label><span class="sr-only">Filter by status</span><select id="status-filter"><option value="all">All statuses</option><option value="unfunded">Not funded</option><option value="funded">Funded</option><option value="paid">Paid</option></select></label>
+            <label><span class="sr-only">Filter by payment method</span><select id="method-filter"><option value="all">All payment methods</option><option value="manual">Manual payments</option><option value="auto">Auto payments</option><option value="other">Other / unspecified</option></select></label>
+            <label class="unpaid-filter"><input id="unpaid-only" type="checkbox"> Unpaid only</label>
             <span id="visible-count" class="result-count"></span>
           </div>
           <div class="table-scroll"><table class="payment-table"><thead><tr><th>Payee</th><th>Due</th><th>Paycheck</th><th>Category</th><th>Method</th><th class="right">Amount</th><th>Funded</th><th>Paid</th></tr></thead><tbody id="payment-rows"></tbody></table></div>
@@ -43,5 +45,5 @@
     <div id="detail-grid" class="detail-grid"></div>
     <div class="dialog-actions"><button id="detail-funded" class="button secondary" type="button"></button><button id="detail-paid" class="button primary" type="button"></button></div>
   </dialog>
-  <script src="pay-bills.js"></script>
+  <script src="bills-data.js"></script><script src="pay-bills.js"></script>
 </body></html>
