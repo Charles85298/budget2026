@@ -24,14 +24,21 @@ const BillStore=(()=>{
     ));
     return [...base,...custom].flatMap(original=>{
       const paid=(saved[original.id]?.paid ?? (sample?original.paid:false));
-      if(paid)return [{...original,...(saved[original.id]?.snapshot||{}),...(saved[original.id]||{})}];
+      if(paid)return [{
+        ...original,plannedAmount:original.amount,actualAmount:null,paidDate:'',
+        ...(saved[original.id]?.snapshot||{}),...(saved[original.id]||{})
+      }];
       const changes=model.changes.filter(c=>c.id===original.id&&c.from<=month).sort((a,b)=>a.from.localeCompare(b.from));
       const latest=changes.at(-1);
       const bill=latest?{...original,...latest.fields}:original;
       if(latest&&!occurs(bill,month,latest.from))return [];
       const removal=model.removed.find(r=>r.id===original.id&&r.from<=month);
       if(removal)return [];
-      return [{...bill,funded:sample?original.funded:false,paid:sample?original.paid:false,...(saved[original.id]||{})}];
+      return [{
+        ...bill,plannedAmount:bill.amount,actualAmount:null,paidDate:'',
+        funded:sample?original.funded:false,paid:sample?original.paid:false,
+        ...(saved[original.id]||{})
+      }];
     });
   }
   function add(fields,from){const model=read();const id=Date.now()+Math.floor(Math.random()*100000);model.added.push({id,...fields,startMonth:from,funded:false,paid:false,month:'',year:''});write(model);return id}

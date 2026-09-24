@@ -39,7 +39,7 @@
             <label class="unpaid-filter"><input id="unpaid-only" type="checkbox"> Unpaid only</label>
             <span id="visible-count" class="result-count"></span>
           </div>
-          <div class="table-scroll"><table class="payment-table"><thead><tr><th>Payee</th><th>Due</th><th>Paycheck</th><th>Category</th><th>Method</th><th class="right">Amount</th><th>Funded</th><th>Paid</th></tr></thead><tbody id="payment-rows"></tbody></table></div>
+          <div class="table-scroll"><table class="payment-table"><thead><tr><th>Payee</th><th>Due</th><th>Paycheck</th><th>Category</th><th>Method</th><th class="right">Planned</th><th class="right">To pay</th><th class="right">Paid amount</th><th>Paid date</th><th>Funded</th><th>Paid</th></tr></thead><tbody id="payment-rows"></tbody></table></div>
           <p id="empty-state" class="empty" hidden>No bills match these filters.</p>
         </section>
         <footer>Frontend draft · Bill changes stay in this browser until a database is connected.</footer>
@@ -53,6 +53,12 @@
       <label for="amount-to-pay">Amount to pay this month</label>
       <div class="amount-form-row"><input id="amount-to-pay" type="number" min="0" step="0.01" placeholder="Enter amount" required><button class="button secondary" type="submit">Save amount</button></div>
       <small>This changes only this month's bill, not future bills.</small>
+    </form>
+    <form id="payment-form" class="payment-form">
+      <div class="payment-form-grid"><label>Actual amount paid <input id="actual-paid" type="number" min="0" step="0.01" placeholder="Enter amount" required></label>
+      <label>Payment date <input id="payment-date" type="date" required></label></div>
+      <button class="button primary" type="submit">Save payment</button>
+      <small>Saving marks this bill paid. The planned and amount-to-pay values remain available for comparison.</small>
     </form>
     <div class="dialog-actions"><button id="detail-funded" class="button secondary" type="button"></button><button id="detail-paid" class="button primary" type="button"></button></div>
   </dialog>

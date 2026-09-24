@@ -12,15 +12,20 @@ function storageKey(){return 'paywise-demo-payments-v1-'+date.getFullYear()+'-'+
 function currentRows(){
   return BillStore.billsFor(date);
 }
-function save(id,field,value){
+function updateBill(id,fields){
   let saved={};
   try{saved=JSON.parse(localStorage.getItem(storageKey())||'{}')||{}}catch{}
   const current=currentRows().find(r=>r.id===id);
-  saved[id]={...(saved[id]||{}),[field]:value};
-  if(field==='paid'&&value&&current)saved[id].snapshot={...current,paid:true};
+  saved[id]={...(saved[id]||{}),...fields};
+  if(fields.paid===true&&current)saved[id].snapshot={...current,...fields};
   localStorage.setItem(storageKey(),JSON.stringify(saved));
   render();
   if($('bill-dialog').open)openDetails(id);
+}
+function save(id,field,value){updateBill(id,{[field]:value})}
+function localToday(){
+  const today=new Date();
+  return today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
 }
 function status(r){return r.paid?'paid':r.funded?'funded':'unfunded'}
 function paymentGroup(method){
@@ -46,15 +51,20 @@ function render(){
     : 'Blank frequencies are treated as monthly in this preview. Quarterly and yearly schedules need their start months.';
   for(const [key,predicate] of [['due',r=>!r.paid],['funded',r=>r.funded&&!r.paid],['paid',r=>r.paid]]){
     const group=scope.filter(predicate);
-    $(''+key+'-total').textContent=money(group.reduce((sum,r)=>sum+(r.amount||0),0));
-    $(''+key+'-count').textContent=group.length+' bill'+(group.length===1?'':'s')+(group.some(r=>r.amount===null)?' · excludes blank amounts':'');
+    const value=r=>key==='paid'?r.actualAmount:r.amount;
+    const missing=group.filter(r=>value(r)===null).length;
+    $(''+key+'-total').textContent=money(group.reduce((sum,r)=>sum+(value(r)||0),0));
+    $(''+key+'-count').textContent=group.length+' bill'+(group.length===1?'':'s')+(missing?' · '+missing+' amount'+(missing===1?'':'s')+' not recorded':'');
   }
   $('visible-count').textContent=shown.length+' of '+scope.length+' bills';
   $('payment-rows').innerHTML=shown.map(r=>`<tr>
     <td><button class="payee-button" data-detail="${r.id}">${escapeHtml(r.payee)}</button></td>
     <td>${r.due}</td><td><span class="pill">#${r.paycheck}</span></td>
     <td>${escapeHtml(r.category||'—')}</td><td>${escapeHtml(r.method||'—')}</td>
+    <td class="right amount">${money(r.plannedAmount)}</td>
     <td class="right amount">${money(r.amount)}</td>
+    <td class="right amount">${r.paid?money(r.actualAmount):'—'}</td>
+    <td>${r.paid&&r.paidDate?escapeHtml(r.paidDate):'—'}</td>
     <td><label class="check-label"><input type="checkbox" data-id="${r.id}" data-field="funded" ${r.funded?'checked':''}><span class="sr-only">Funded: ${escapeHtml(r.payee)}, paycheck ${r.paycheck}</span></label></td>
     <td><label class="check-label"><input type="checkbox" data-id="${r.id}" data-field="paid" ${r.paid?'checked':''}><span class="sr-only">Paid: ${escapeHtml(r.payee)}, paycheck ${r.paycheck}</span></label></td>
   </tr>`).join('');
@@ -66,7 +76,10 @@ function openDetails(id){
   selectedId=id;$('dialog-title').textContent=r.payee;
   const phone=/^[+*\d() -]+$/.test(r.phone)&&r.phone?'<a href="tel:'+encodeURIComponent(r.phone.replace(/[^+*\d]/g,''))+'">'+escapeHtml(r.phone)+'</a>':escapeHtml(r.phone||'—');
   $('detail-grid').innerHTML=[
-    detail('Amount',money(r.amount)),detail('Due day',String(r.due)),
+    detail('Planned amount',money(r.plannedAmount)),detail('Amount to pay',money(r.amount)),
+    detail('Actual amount paid',r.paid?money(r.actualAmount):'—'),
+    detail('Payment date',r.paid?r.paidDate:''),
+    detail('Due day',String(r.due)),
     detail('Paycheck',String(r.paycheck)),detail('Category',r.category),
     detail('Payment method',r.method),detail('Frequency',r.frequency),
     `<div class="detail"><span>Phone</span><strong>${phone}</strong></div>`,
@@ -79,8 +92,18 @@ function openDetails(id){
   $('detail-funded').textContent=r.funded?'Mark not funded':'Mark funded';
   $('detail-paid').textContent=r.paid?'Mark unpaid':'Mark paid';
   $('amount-to-pay').value=r.amount===null?'':r.amount.toFixed(2);
+  $('actual-paid').value=r.actualAmount===null?(r.paid?'':r.amount===null?'':r.amount.toFixed(2)):r.actualAmount.toFixed(2);
+  $('payment-date').value=r.paid?r.paidDate:localToday();
   if(!$('bill-dialog').open)$('bill-dialog').showModal();
 }
+$('payment-form').addEventListener('submit',event=>{
+  event.preventDefault();
+  const input=$('actual-paid'),paymentDate=$('payment-date');
+  if(!input.reportValidity()||!paymentDate.reportValidity()||selectedId===null)return;
+  const actualAmount=Number(input.value);
+  if(!Number.isFinite(actualAmount)||actualAmount<0)return;
+  updateBill(selectedId,{paid:true,actualAmount:Math.round(actualAmount*100)/100,paidDate:paymentDate.value});
+});
 $('amount-form').addEventListener('submit',event=>{
   event.preventDefault();
   const input=$('amount-to-pay');
@@ -90,7 +113,14 @@ $('amount-form').addEventListener('submit',event=>{
   save(selectedId,'amount',Math.round(amount*100)/100);
 });
 $('payment-rows').addEventListener('click',e=>{const button=e.target.closest('[data-detail]');if(button)openDetails(Number(button.dataset.detail))});
-$('payment-rows').addEventListener('change',e=>{const input=e.target.closest('input[data-field]');if(input)save(Number(input.dataset.id),input.dataset.field,input.checked)});
+$('payment-rows').addEventListener('change',e=>{
+  const input=e.target.closest('input[data-field]');if(!input)return;
+  const id=Number(input.dataset.id);
+  if(input.dataset.field==='paid'){
+    if(input.checked){render();openDetails(id);$('actual-paid').focus()}
+    else updateBill(id,{paid:false,actualAmount:null,paidDate:''});
+  }else save(id,'funded',input.checked);
+});
 for(const id of ['search','paycheck-filter','status-filter','method-filter','unpaid-only'])$(id).addEventListener(id==='search'?'input':'change',render);
 $('method-filter').value=['manual','auto'].includes(params.get('view'))?params.get('view'):'all';
 $('unpaid-only').checked=['manual','auto'].includes(params.get('view'));
@@ -99,5 +129,10 @@ $('next-month').onclick=()=>{date.setMonth(date.getMonth()+1);render()};
 $('close-dialog').onclick=()=>$('bill-dialog').close();
 $('bill-dialog').addEventListener('click',e=>{if(e.target===$('bill-dialog'))$('bill-dialog').close()});
 $('detail-funded').onclick=()=>{const r=currentRows().find(x=>x.id===selectedId);if(r)save(r.id,'funded',!r.funded)};
-$('detail-paid').onclick=()=>{const r=currentRows().find(x=>x.id===selectedId);if(r)save(r.id,'paid',!r.paid)};
+$('detail-paid').onclick=()=>{
+  const r=currentRows().find(x=>x.id===selectedId);
+  if(!r)return;
+  if(r.paid)updateBill(r.id,{paid:false,actualAmount:null,paidDate:''});
+  else $('payment-form').requestSubmit();
+};
 render();

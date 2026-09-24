@@ -39,7 +39,10 @@ function openDetails(id){
   try{const url=new URL(bill.website);if(['https:','http:'].includes(url.protocol))website=`<a href="${escapeHtml(url.href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(bill.website)}</a>`}catch{}
   const [year,month]=$('start-month').value.split('-').map(Number);
   $('details-grid').innerHTML=[
-    detail('Amount',money(bill.amount)),detail('Due day',bill.due),
+    detail('Planned amount',money(bill.plannedAmount)),detail('Amount to pay',money(bill.amount)),
+    detail('Actual amount paid',bill.paid?money(bill.actualAmount):'—'),
+    detail('Payment date',bill.paid?bill.paidDate:''),
+    detail('Due day',bill.due),
     detail('Paycheck','Paycheck '+bill.paycheck),detail('Category',bill.category),
     detail('Payment method',bill.method),detail('Frequency',bill.frequency||'Monthly (assumed)'),
     `<div class="detail"><span>Phone</span><strong>${phone}</strong></div>`,
