@@ -3,7 +3,7 @@
 <body><div class="app-shell">
 <aside class="sidebar"><a class="brand" href="index.html"><img class="brand-logo" src="assets/financial-freedom-icon.png" alt=""> <span class="brand-name">Financial Freedom</span></a><div class="side-section">WORKSPACE</div>
 <nav aria-label="Main navigation"><a href="index.html"><span>▦</span> Overview</a><a href="index.html#paychecks"><span>◫</span> Paychecks</a>
-<div class="nav-group"><a class="nav-parent" href="pay-bills.html"><span>▤</span> Pay bills</a><div class="subnav"><a href="planned-bills.html">Planned bills</a><a href="auto-payments.html">Auto payments</a><a href="manual-payments.html">Manual payments</a></div></div>
+<div class="nav-group"><a class="nav-parent" href="pay-bills.html"><span>▤</span> Pay bills</a><div class="subnav"><a href="planned-bills.html">Planned bills</a><a href="auto-payments.html">Auto payments</a><a href="manual-payments.html">Manual payments</a><a href="quarterly-funds.html">Quarterly funds</a></div></div>
 <a class="active" href="bill-management.html" aria-current="page"><span>⚙</span> Bill management</a></nav>
 <div class="sidebar-bottom"><span class="avatar">CF</span><div><strong>My budget</strong><small>Frontend preview</small></div></div></aside>
 <main class="main"><header class="topbar"><span>Personal budget <span class="crumb">/ Bill management</span></span><a href="login.html">Sign in</a></header>
@@ -27,6 +27,15 @@
 <label>Interest rate (%) <input name="interestRate" type="number" min="0" step="0.001"></label>
 <label>Payoff balance <input name="payoff" type="number" min="0" step="0.01"></label>
 <label>Minimum payment <input name="minimumPayment" type="number" min="0" step="0.01"></label>
+<div id="quarterly-fields" class="quarterly-fields wide" hidden>
+  <strong>Quarterly funding</strong>
+  <p>Set the first bill month and which paycheck supplies the monthly contribution. Three contributions are saved before each due month; use an opening balance if the first bill is sooner.</p>
+  <div class="quarterly-field-grid">
+    <label>First due month <input name="firstDueMonth" type="month"></label>
+    <label>Funding paycheck <select name="fundingPaycheck"><option value="1">Paycheck 1</option><option value="2">Paycheck 2</option><option value="3">Paycheck 3</option></select></label>
+    <label>Opening fund balance <input name="openingFundBalance" type="number" min="0" step="0.01" value="0"></label>
+  </div>
+</div>
 </div><p class="form-scope" id="form-scope"></p><div class="dialog-actions"><button type="button" id="cancel-form" class="button secondary">Cancel</button><button type="submit" class="button primary">Save bill</button></div></form></dialog>
 <dialog id="details-dialog" class="bill-dialog" aria-labelledby="details-title">
   <div class="dialog-head"><div><span class="eyebrow">BILL DETAILS</span><h2 id="details-title"></h2></div><button type="button" id="close-details" class="close-button" aria-label="Close details">×</button></div>

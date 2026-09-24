@@ -41,5 +41,6 @@ const rows = [
   ['Freedom Mortgage','855-690-5900','Auto - bill pay','',3,30,1883.76,'Housing',false,false]
 ].map(([payee,phone,method,frequency,paycheck,due,amount,category,funded,paid,month],id)=>({
   id,payee,phone,website:'',interestRate:null,payoff:null,minimumPayment:null,
-  method,frequency,paycheck,due,month:month||'',year:'',amount,category,funded,paid
+  method,frequency,paycheck,due,month:month||'',year:'',amount,category,funded,paid,
+  ...(frequency==='quarterly'?{firstDueMonth:'2026-10',fundStartMonth:'2026-10',fundingPaycheck:paycheck,openingFundBalance:0}:{})
 }));

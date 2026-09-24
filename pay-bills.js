@@ -75,6 +75,8 @@ function openDetails(id){
   const r=currentRows().find(item=>item.id===id);if(!r)return;
   selectedId=id;$('dialog-title').textContent=r.payee;
   const phone=/^[+*\d() -]+$/.test(r.phone)&&r.phone?'<a href="tel:'+encodeURIComponent(r.phone.replace(/[^+*\d]/g,''))+'">'+escapeHtml(r.phone)+'</a>':escapeHtml(r.phone||'—');
+  const plan=r.frequency==='quarterly'?BillStore.quarterlyPlans(date).find(p=>p.id===r.id):null;
+  const fund=plan?FundStore.balance(plan,date,{beforePayment:true}):null;
   $('detail-grid').innerHTML=[
     detail('Planned amount',money(r.plannedAmount)),detail('Amount to pay',money(r.amount)),
     detail('Actual amount paid',r.paid?money(r.actualAmount):'—'),
@@ -87,7 +89,9 @@ function openDetails(id){
     detail('Payoff',r.payoff),detail('Minimum payment',r.minimumPayment),
     detail('Month',r.month||date.toLocaleDateString('en-US',{month:'long'})),
     detail('Year',r.year||String(date.getFullYear())),
-    detail('Funded',r.funded?'Yes':'No'),detail('Paid',r.paid?'Yes':'No')
+    detail('Funded',r.funded?'Yes':'No'),detail('Paid',r.paid?'Yes':'No'),
+    ...(fund?[detail('Available in quarterly fund',money(fund.amount)),
+      `<div class="detail"><span>Quarterly funding</span><strong><a href="quarterly-funds.html?month=${BillStore.key(date)}">View monthly contributions →</a></strong></div>`]:[])
   ].join('');
   $('detail-funded').textContent=r.funded?'Mark not funded':'Mark funded';
   $('detail-paid').textContent=r.paid?'Mark unpaid':'Mark paid';
