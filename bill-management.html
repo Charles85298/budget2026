@@ -29,11 +29,12 @@
 <label>Minimum payment <input name="minimumPayment" type="number" min="0" step="0.01"></label>
 <div id="quarterly-fields" class="quarterly-fields wide" hidden>
   <strong>Quarterly funding</strong>
-  <p>Set the first bill month and which paycheck supplies the monthly contribution. Three contributions are saved before each due month; use an opening balance if the first bill is sooner.</p>
+  <p>Set the next bill month and which paycheck supplies the monthly contribution. If you already have money saved toward this bill, enter that amount below so the current funding position starts correctly.</p>
   <div class="quarterly-field-grid">
     <label>First due month <input name="firstDueMonth" type="month"></label>
     <label>Funding paycheck <select name="fundingPaycheck"><option value="1">Paycheck 1</option><option value="2">Paycheck 2</option><option value="3">Paycheck 3</option></select></label>
-    <label>Opening fund balance <input name="openingFundBalance" type="number" min="0" step="0.01" value="0"></label>
+    <label>Amount already saved <input name="openingFundBalance" type="number" min="0" step="0.01" value="0" aria-describedby="quarterly-saved-help"></label>
+    <div class="quarterly-saved-summary" id="quarterly-saved-help"><span>Saved <b id="quarterly-saved-amount">$0.00</b></span><span>Remaining for next bill <b id="quarterly-remaining-amount">$0.00</b></span></div>
   </div>
 </div>
 </div><p class="form-scope" id="form-scope"></p><div class="dialog-actions"><button type="button" id="cancel-form" class="button secondary">Cancel</button><button type="submit" class="button primary">Save bill</button></div></form></dialog>

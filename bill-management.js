@@ -27,7 +27,12 @@ function visible(){
     return comparison*direction||a.payee.localeCompare(b.payee,undefined,{sensitivity:'base'})||a.id-b.id;
   });
 }
-function toggleQuarterly(){const quarterly=$('bill-form').elements.frequency.value==='quarterly';$('quarterly-fields').hidden=!quarterly;$('bill-form').elements.firstDueMonth.required=quarterly}
+function updateQuarterlySummary(){
+  const form=$('bill-form'),amount=Number(form.elements.amount.value)||0,saved=Number(form.elements.openingFundBalance.value)||0;
+  $('quarterly-saved-amount').textContent=money(saved);
+  $('quarterly-remaining-amount').textContent=money(Math.max(0,Math.round((amount-saved)*100)/100));
+}
+function toggleQuarterly(){const quarterly=$('bill-form').elements.frequency.value==='quarterly';$('quarterly-fields').hidden=!quarterly;$('bill-form').elements.firstDueMonth.required=quarterly;updateQuarterlySummary()}
 function render(){
   const list=visible();$('manage-count').textContent=list.length+' bills';
   document.querySelectorAll('.manage-table thead [data-sort]').forEach(button=>{
@@ -82,7 +87,8 @@ function openDetails(id){
     ...(bill.frequency==='quarterly'?[
       detail('First due month',bill.firstDueMonth||'October 2026'),
       detail('Funding paycheck','Paycheck '+(bill.fundingPaycheck||bill.paycheck)),
-      detail('Opening fund balance',money(bill.openingFundBalance||0)),
+      detail('Amount already saved',money(bill.openingFundBalance||0)),
+      detail('Remaining for next bill',bill.amount===null?'—':money(Math.max(0,Math.round((bill.amount-(Number(bill.openingFundBalance)||0))*100)/100))),
       detail('Suggested monthly contribution',bill.amount===null?'—':money(Math.round(bill.amount*100/3)/100))
     ]:[]),
     detail('Due day',bill.dueRule==='end_of_month'?'Last day ('+bill.due+')':bill.due),
@@ -100,6 +106,8 @@ function openDetails(id){
 }
 $('add-bill').onclick=()=>openForm();
 $('bill-form').elements.frequency.addEventListener('change',toggleQuarterly);
+$('bill-form').elements.amount.addEventListener('input',updateQuarterlySummary);
+$('bill-form').elements.openingFundBalance.addEventListener('input',updateQuarterlySummary);
 $('close-form').onclick=$('cancel-form').onclick=()=>$('edit-dialog').close();
 $('edit-dialog').addEventListener('click',e=>{if(e.target===$('edit-dialog'))$('edit-dialog').close()});
 $('close-details').onclick=$('done-details').onclick=()=>$('details-dialog').close();
@@ -137,6 +145,6 @@ document.querySelector('.manage-table thead').addEventListener('click',event=>{
   render();
 });
 $('export-managed').onclick=()=>CsvExport.download('financial-freedom-bill-management-'+$('start-month').value+'.csv',
-  ['Month','Payee','Due day','Frequency','Paycheck','Category','Payment method','Planned amount','Amount to pay','Phone','Website','Interest rate','Payoff balance','Minimum payment','First quarterly due month','Funding paycheck','Opening fund balance','Paid'],
+  ['Month','Payee','Due day','Frequency','Paycheck','Category','Payment method','Planned amount','Amount to pay','Phone','Website','Interest rate','Payoff balance','Minimum payment','First quarterly due month','Funding paycheck','Amount already saved','Paid'],
   visible().map(r=>[$('start-month').value,r.payee,r.due,r.frequency||'monthly (assumed)',r.paycheck,r.category,r.method,r.plannedAmount,r.amount,r.phone,r.website,r.interestRate,r.payoff,r.minimumPayment,r.firstDueMonth||'',r.fundingPaycheck||'',r.openingFundBalance??'',r.paid?'Yes':'No']));
 render();

@@ -1,4 +1,4 @@
-// Monthly reserve contributions for quarterly bills. This is a browser-only preview ledger.
+// Monthly reserve contributions for quarterly bills. openingFundBalance stores the amount already saved when tracking begins.
 const FundStore=(()=>{
   const KEY='financial-freedom-quarterly-funds-v1';
   const read=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch{return {}}};

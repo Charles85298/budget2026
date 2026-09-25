@@ -30,7 +30,7 @@ const BillStore=(()=>{
       const recorded=Math.round(payments.reduce((sum,p)=>sum+Math.round(p.amount*100),0))/100;
       const legacy=payments.length===0&&bill.paid&&bill.actualAmount!==null?bill.actualAmount:0;
       const actualAmount=payments.length?recorded:bill.actualAmount;
-      return {...bill,due:bill.dueRule==='end_of_month'?lastDay:Math.min(Number(bill.due),lastDay),payments,actualAmount,remainingAmount:bill.amount===null?null:Math.max(0,Math.round((bill.amount-recorded-legacy)*100)/100),paid:payments.length?bill.amount!==null&&recorded>=bill.amount:bill.paid,paidDate:payments.length?payments.at(-1).date:bill.paidDate};
+      return {...bill,due:bill.manualOverride?Math.min(Math.max(1,Number(bill.due)||1),lastDay):(bill.dueRule==='end_of_month'?lastDay:Math.min(Number(bill.due),lastDay)),payments,actualAmount,remainingAmount:bill.amount===null?null:Math.max(0,Math.round((bill.amount-recorded-legacy)*100)/100),paid:payments.length?bill.amount!==null&&recorded>=bill.amount:bill.paid,paidDate:payments.length?payments.at(-1).date:bill.paidDate};
     };
     return [...base,...custom].flatMap(original=>{
       const paid=(saved[original.id]?.paid ?? (sample?original.paid:false));

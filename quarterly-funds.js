@@ -16,7 +16,7 @@ function render(){
     const next=due.toLocaleDateString('en-US',{month:'long',year:'numeric'});
     const shortfall=payment&&!payment.paid&&payment.amount!==null?Math.max(0,Math.round((payment.amount-FundStore.balance(plan,date,{beforePayment:true}).amount)*100)/100):0;
     return `<article class="fund-card"><div class="fund-heading"><div><h3>${escapeHtml(plan.payee)}</h3><span>Paycheck ${entry.paycheck} · Next bill ${next} · Quarterly bill ${money(plan.amount)}</span></div><strong>${money(fund.amount)}<small> fund balance</small></strong></div>
-      <div class="fund-meta"><span>Suggested this month <b>${money(entry.contribution)}</b></span><span>Opening balance <b>${money(plan.openingFundBalance)}</b></span>${payment?`<span>Bill due this month <b>${money(payment.amount)}</b></span>`:''}</div>
+      <div class="fund-meta"><span>Suggested this month <b>${money(entry.contribution)}</b></span><span>Amount already saved <b>${money(plan.openingFundBalance)}</b></span>${payment?`<span>Bill due this month <b>${money(payment.amount)}</b></span>`:''}</div>
       <form class="fund-action" data-id="${plan.id}"><label>Amount moved to fund <input name="amount" type="number" min="0" step="0.01" value="${entry.funded?entry.fundedAmount:entry.contribution??''}" required></label><button class="button ${entry.funded?'secondary':'primary'}" type="submit">${entry.funded?'Update contribution':'Mark funded'}</button>${entry.funded?'<button class="undo-fund" type="button" data-undo="'+plan.id+'">Undo</button>':''}</form>
       ${shortfall?`<p class="fund-alert">This bill is ${money(shortfall)} above the recorded fund balance.</p>`:''}
       ${fund.unrecorded?`<p class="fund-alert">${fund.unrecorded} paid bill${fund.unrecorded===1?'':'s'} need an actual payment amount to reconcile this balance.</p>`:''}
@@ -33,7 +33,7 @@ $('fund-list').addEventListener('submit',event=>{
 });
 $('fund-list').addEventListener('click',event=>{const button=event.target.closest('[data-undo]');if(button){FundStore.setContribution(Number(button.dataset.undo),date,0,false);render()}});
 $('export-funds').onclick=()=>CsvExport.download('financial-freedom-quarterly-funds-'+BillStore.key(date)+'.csv',
-  ['Month','Payee','Quarterly bill amount','Due day','Next due month','Funding paycheck','Suggested contribution','Funded contribution','Contribution funded','Opening fund balance','Current fund balance','Bill due this month','Actual bill payment','Payment date','Unrecorded paid bills'],
+  ['Month','Payee','Quarterly bill amount','Due day','Next due month','Funding paycheck','Suggested contribution','Funded contribution','Contribution funded','Amount already saved','Current fund balance','Bill due this month','Actual bill payment','Payment date','Unrecorded paid bills'],
   BillStore.quarterlyPlans(date).map(plan=>{
     const entry=FundStore.entry(plan,date),balance=FundStore.balance(plan,date),bill=BillStore.billsFor(date).find(r=>r.id===plan.id);
     const next=FundStore.nextDue(plan,bill?.paid?new Date(date.getFullYear(),date.getMonth()+1,1):date);
