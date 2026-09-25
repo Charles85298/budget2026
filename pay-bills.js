@@ -18,7 +18,7 @@ function updateBill(id,fields){
   const current=currentRows().find(r=>r.id===id);
   saved[id]={...(saved[id]||{}),...fields};
   if(fields.paid===true&&current)saved[id].snapshot={...current,...fields};
-  localStorage.setItem(storageKey(),JSON.stringify(saved));
+  window.CloudSync.save(storageKey(),saved);
   render();
   if($('bill-dialog').open)openDetails(id);
 }

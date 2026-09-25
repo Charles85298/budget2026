@@ -19,13 +19,13 @@
         <form id="login-form">
           <label for="email">Email address</label><input id="email" type="email" autocomplete="username" placeholder="you@example.com" required>
           <label for="password">Password</label><div class="password-wrap"><input id="password" type="password" autocomplete="current-password" placeholder="Enter your password" required><button type="button" id="show-password" aria-label="Show password">Show</button></div>
-          <button class="button primary sign-in" type="submit">Sign in</button>
+          <button class="button primary sign-in" type="submit" name="mode" value="signin">Sign in</button><button class="button secondary sign-in" type="submit" name="mode" value="signup">Create account</button><p id="auth-message" role="status" aria-live="polite"></p>
         </form>
-        <p class="demo-note">Frontend preview: sign-in is not connected yet. No credentials are saved.</p>
-        <a class="demo-link" href="index.html">Explore the sample dashboard →</a>
+        <p class="demo-note">Sign in or create an account to access your private budget.</p>
+        
       </div>
     </section>
   </main>
-  <script src="login.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js"></script><script src="login.js"></script>
 </body>
 </html>

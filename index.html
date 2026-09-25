@@ -36,10 +36,9 @@
         </section>
         <section id="paychecks" class="section"><div class="section-head"><div><h2>By paycheck</h2><p class="muted">Income less regular bills and quarterly contributions. Quarterly bill payments use their fund balance.</p></div><a class="button secondary" id="manage-income-link" href="income.html">Manage income</a></div><div id="paycheck-grid" class="paycheck-grid"></div></section>
         <section id="bills" class="section"><div class="section-head"><div><h2>Unpaid bills</h2><p class="muted">Only bills still to pay this month appear here.</p></div><div class="section-actions"><label class="search-label"><span class="sr-only">Search bills</span><input id="bill-search" type="search" placeholder="Search bills"></label><button class="button secondary" id="export-dashboard">Download CSV</button></div></div><div class="table-scroll"><table><thead><tr><th>Payee</th><th>Due</th><th>Category</th><th>Paycheck</th><th>Payment</th><th class="right">Planned</th><th class="right">To pay</th></tr></thead><tbody id="bill-rows"></tbody></table></div><p id="empty-state" class="empty" hidden></p></section>
-        <footer>Frontend draft · Recurring bill generation and sign-in will connect to Supabase later.</footer>
+        <footer>Your changes are saved to your account. Sample bills remain until you replace them.</footer>
       </div>
     </main>
   </div>
-  <script src="bills-data.js"></script><script src="payment-store.js"></script><script src="bill-store.js"></script><script src="export-csv.js"></script><script src="fund-store.js"></script><script src="income-store.js"></script><script src="app.js"></script>
-</body>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js"></script><script src="cloud-bootstrap.js"></script></body>
 </html>

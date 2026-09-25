@@ -2,7 +2,7 @@
 const PaymentStore=(()=>{
   const KEY='financial-freedom-payment-ledger-v1';
   const read=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch{return {}}};
-  const write=data=>localStorage.setItem(KEY,JSON.stringify(data));
+  const write=data=>window.CloudSync.save(KEY,data);
   const key=(id,month)=>id+':'+month;
   const list=(id,month)=>read()[key(id,month)]||[];
   function add(id,month,amount,date){

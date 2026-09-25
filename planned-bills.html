@@ -24,7 +24,7 @@
       <header class="topbar"><span>Personal budget <span class="crumb">/ Planned bills</span></span><a href="login.html">Sign in</a></header>
       <div class="content">
         <div class="page-heading"><div><span class="eyebrow">BILL PAYMENT</span><h1>Planned bills</h1><p class="muted">All bills planned for this month, including paid bills.</p></div><div class="month-picker"><button id="prev-month" aria-label="Previous month">‹</button><strong id="month-label"></strong><button id="next-month" aria-label="Next month">›</button></div></div>
-        <div class="preview-banner"><span class="preview-dot"></span><strong>Sample budget</strong><span id="preview-message">October 2026 includes the statuses you provided. Changes are saved only in this browser.</span></div>
+        <div class="preview-banner"><span class="preview-dot"></span><strong>Sample budget</strong><span id="preview-message">October 2026 includes the statuses you provided. Changes are saved to your account.</span></div>
         <section class="stats" aria-label="Payment summary">
           <article class="stat"><span>Still to pay</span><strong id="due-total"></strong><small id="due-count"></small></article>
           <article class="stat"><span>Funded, not paid</span><strong id="funded-total"></strong><small id="funded-count"></small></article>
@@ -43,7 +43,7 @@
           <div class="table-scroll"><table class="payment-table"><thead><tr><th>Payee</th><th>Due</th><th>Paycheck</th><th>Category</th><th>Method</th><th class="right">Planned</th><th class="right">To pay</th><th class="right">Paid amount</th><th>Paid date</th><th>Funded</th><th>Paid</th></tr></thead><tbody id="payment-rows"></tbody></table></div>
           <p id="empty-state" class="empty" hidden>No bills match these filters.</p>
         </section>
-        <footer>Frontend draft · Bill changes stay in this browser until a database is connected.</footer>
+        <footer>Frontend draft · Bill changes are saved to your account.</footer>
       </div>
     </main>
   </div>
@@ -63,5 +63,4 @@
     </form>
     <div class="dialog-actions"><button id="detail-funded" class="button secondary" type="button"></button><button id="detail-paid" class="button primary" type="button"></button></div>
   </dialog>
-  <script src="bills-data.js"></script><script src="payment-store.js"></script><script src="bill-store.js"></script><script src="export-csv.js"></script><script src="fund-store.js"></script><script src="pay-bills.js"></script>
-</body></html>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js"></script><script src="cloud-bootstrap.js"></script></body></html>
