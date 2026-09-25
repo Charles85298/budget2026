@@ -24,23 +24,31 @@ const BillStore=(()=>{
     const custom=model.added.filter(b=>month>=b.startMonth&&(
       occurs(b,month,b.firstDueMonth||b.startMonth)||model.changes.some(c=>c.id===b.id&&c.from<=month)
     ));
+    const lastDay=new Date(date.getFullYear(),date.getMonth()+1,0).getDate();
+    const withPayments=bill=>{
+      const payments=PaymentStore.list(bill.id,month);
+      const recorded=Math.round(payments.reduce((sum,p)=>sum+Math.round(p.amount*100),0))/100;
+      const legacy=payments.length===0&&bill.paid&&bill.actualAmount!==null?bill.actualAmount:0;
+      const actualAmount=payments.length?recorded:bill.actualAmount;
+      return {...bill,due:bill.dueRule==='end_of_month'?lastDay:Math.min(Number(bill.due),lastDay),payments,actualAmount,remainingAmount:bill.amount===null?null:Math.max(0,Math.round((bill.amount-recorded-legacy)*100)/100),paid:payments.length?bill.amount!==null&&recorded>=bill.amount:bill.paid,paidDate:payments.length?payments.at(-1).date:bill.paidDate};
+    };
     return [...base,...custom].flatMap(original=>{
       const paid=(saved[original.id]?.paid ?? (sample?original.paid:false));
-      if(paid)return [{
+      if(paid)return [withPayments({
         ...original,plannedAmount:original.amount,actualAmount:null,paidDate:'',
         ...(saved[original.id]?.snapshot||{}),...(saved[original.id]||{})
-      }];
+      })];
       const changes=model.changes.filter(c=>c.id===original.id&&c.from<=month).sort((a,b)=>a.from.localeCompare(b.from));
       const latest=changes.at(-1);
       const bill=latest?{...original,...latest.fields}:original;
       if(latest&&!occurs(bill,month,bill.firstDueMonth||latest.from))return [];
       const removal=model.removed.find(r=>r.id===original.id&&r.from<=month);
       if(removal)return [];
-      return [{
+      return [withPayments({
         ...bill,plannedAmount:bill.amount,actualAmount:null,paidDate:'',
         funded:sample?original.funded:false,paid:sample?original.paid:false,
         ...(saved[original.id]||{})
-      }];
+      })];
     });
   }
   function quarterlyPlans(date){

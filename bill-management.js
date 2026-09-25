@@ -47,6 +47,7 @@ function openForm(id=null){
   for(const key of ['payee','amount','due','frequency','paycheck','category','method','phone','website','interestRate','payoff','minimumPayment']){
     if(r&&r[key]!==null&&r[key]!==undefined)$('bill-form').elements[key].value=r[key];
   }
+  $('bill-form').elements.dueRule.value=r?.dueRule||'day';
   if(r&&!r.frequency)$('bill-form').elements.frequency.value='monthly';
   if(r?.frequency==='quarterly'){
     $('bill-form').elements.firstDueMonth.value=r.firstDueMonth||'2026-10';
@@ -84,7 +85,7 @@ function openDetails(id){
       detail('Opening fund balance',money(bill.openingFundBalance||0)),
       detail('Suggested monthly contribution',bill.amount===null?'—':money(Math.round(bill.amount*100/3)/100))
     ]:[]),
-    detail('Due day',bill.due),
+    detail('Due day',bill.dueRule==='end_of_month'?'Last day ('+bill.due+')':bill.due),
     detail('Paycheck','Paycheck '+bill.paycheck),detail('Category',bill.category),
     detail('Payment method',bill.method),detail('Frequency',bill.frequency||'Monthly (assumed)'),
     `<div class="detail"><span>Phone</span><strong>${phone}</strong></div>`,
@@ -115,7 +116,7 @@ $('manage-rows').addEventListener('click',e=>{
 $('bill-form').addEventListener('submit',e=>{
   e.preventDefault();const form=e.currentTarget;
   const number=name=>form.elements[name].value===''?null:Number(form.elements[name].value);
-  const fields={payee:form.elements.payee.value.trim(),amount:number('amount'),due:number('due'),frequency:form.elements.frequency.value,paycheck:number('paycheck'),category:form.elements.category.value.trim(),method:form.elements.method.value,phone:form.elements.phone.value.trim(),website:form.elements.website.value.trim(),interestRate:number('interestRate'),payoff:number('payoff'),minimumPayment:number('minimumPayment')};
+  const fields={payee:form.elements.payee.value.trim(),amount:number('amount'),due:number('due'),dueRule:form.elements.dueRule.value,frequency:form.elements.frequency.value,paycheck:number('paycheck'),category:form.elements.category.value.trim(),method:form.elements.method.value,phone:form.elements.phone.value.trim(),website:form.elements.website.value.trim(),interestRate:number('interestRate'),payoff:number('payoff'),minimumPayment:number('minimumPayment')};
   if(fields.frequency==='quarterly'){
     fields.firstDueMonth=form.elements.firstDueMonth.value;
     fields.fundingPaycheck=Number(form.elements.fundingPaycheck.value);

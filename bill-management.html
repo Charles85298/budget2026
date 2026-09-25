@@ -17,7 +17,7 @@
 <form id="bill-form"><div class="form-grid">
 <label class="wide">Payee <input name="payee" required maxlength="120"></label>
 <label>Amount <input name="amount" type="number" min="0" step="0.01" placeholder="0.00"></label>
-<label>Due day <input name="due" type="number" min="1" max="31" required></label>
+<label>Due day <input name="due" type="number" min="1" max="31" required></label><label>Due date rule <select name="dueRule"><option value="day">This day, capped in short months</option><option value="end_of_month">Last day of each month</option></select></label>
 <label>Frequency <select name="frequency" required><option value="monthly">Monthly</option><option value="quarterly">Quarterly</option><option value="yearly">Yearly</option><option value="one-time">One-time</option></select></label>
 <label>Paycheck <select name="paycheck" required><option value="1">Paycheck 1</option><option value="2">Paycheck 2</option><option value="3">Paycheck 3</option></select></label>
 <label>Category <input name="category" maxlength="60"></label>
@@ -42,4 +42,4 @@
   <div id="details-grid" class="detail-grid"></div>
   <div class="dialog-actions"><button type="button" id="done-details" class="button secondary">Close</button></div>
 </dialog>
-<script src="bills-data.js"></script><script src="bill-store.js"></script><script src="export-csv.js"></script><script src="bill-management.js"></script></body></html>
+<script src="bills-data.js"></script><script src="payment-store.js"></script><script src="bill-store.js"></script><script src="export-csv.js"></script><script src="bill-management.js"></script></body></html>

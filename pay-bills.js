@@ -27,7 +27,7 @@ function localToday(){
   const today=new Date();
   return today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
 }
-function status(r){return r.paid?'paid':r.funded?'funded':'unfunded'}
+function status(r){return r.paid?'paid':r.payments.length?'partial':r.funded?'funded':'unfunded'}
 function paymentGroup(method){
   const normalized=method.toLowerCase();
   if(normalized.includes('auto'))return 'auto';
@@ -52,7 +52,7 @@ function render(){
     : 'Blank frequencies are treated as monthly in this preview. Quarterly and yearly schedules need their start months.';
   for(const [key,predicate] of [['due',r=>!r.paid],['funded',r=>r.funded&&!r.paid],['paid',r=>r.paid]]){
     const group=scope.filter(predicate);
-    const value=r=>key==='paid'?r.actualAmount:r.amount;
+    const value=r=>key==='paid'?r.actualAmount:r.remainingAmount;
     const missing=group.filter(r=>value(r)===null).length;
     $(''+key+'-total').textContent=money(group.reduce((sum,r)=>sum+(value(r)||0),0));
     $(''+key+'-count').textContent=group.length+' bill'+(group.length===1?'':'s')+(missing?' · '+missing+' amount'+(missing===1?'':'s')+' not recorded':'');
@@ -64,8 +64,8 @@ function render(){
     <td>${escapeHtml(r.category||'—')}</td><td>${escapeHtml(r.method||'—')}</td>
     <td class="right amount">${money(r.plannedAmount)}</td>
     <td class="right amount">${money(r.amount)}</td>
-    <td class="right amount">${r.paid?money(r.actualAmount):'—'}</td>
-    <td>${r.paid&&r.paidDate?escapeHtml(r.paidDate):'—'}</td>
+    <td class="right amount">${r.actualAmount!==null?money(r.actualAmount):'—'}</td>
+    <td>${r.paidDate?escapeHtml(r.paidDate):'—'}</td>
     <td><label class="check-label"><input type="checkbox" data-id="${r.id}" data-field="funded" ${r.funded?'checked':''}><span class="sr-only">Funded: ${escapeHtml(r.payee)}, paycheck ${r.paycheck}</span></label></td>
     <td><label class="check-label"><input type="checkbox" data-id="${r.id}" data-field="paid" ${r.paid?'checked':''}><span class="sr-only">Paid: ${escapeHtml(r.payee)}, paycheck ${r.paycheck}</span></label></td>
   </tr>`).join('');
@@ -80,7 +80,7 @@ function openDetails(id){
   const fund=plan?FundStore.balance(plan,date,{beforePayment:true}):null;
   $('detail-grid').innerHTML=[
     detail('Planned amount',money(r.plannedAmount)),detail('Amount to pay',money(r.amount)),
-    detail('Actual amount paid',r.paid?money(r.actualAmount):'—'),
+    detail('Total paid',r.actualAmount===null?'—':money(r.actualAmount)),detail('Remaining to pay',money(r.remainingAmount)),
     detail('Payment date',r.paid?r.paidDate:''),
     detail('Due day',String(r.due)),
     detail('Paycheck',String(r.paycheck)),detail('Category',r.category),
@@ -94,11 +94,12 @@ function openDetails(id){
     ...(fund?[detail('Available in quarterly fund',money(fund.amount)),
       `<div class="detail"><span>Quarterly funding</span><strong><a href="quarterly-funds.html?month=${BillStore.key(date)}">View monthly contributions →</a></strong></div>`]:[])
   ].join('');
+  $('payment-history').innerHTML='<h3>Payments</h3>'+(r.payments.length?r.payments.map(p=>`<div class="detail"><span>${escapeHtml(p.date)}</span><strong>${money(p.amount)} <button type="button" data-remove-payment="${p.id}" aria-label="Remove payment">Remove</button></strong></div>`).join(''):'<p class="muted">No individual payments recorded.</p>');
   $('detail-funded').textContent=r.funded?'Mark not funded':'Mark funded';
   $('detail-paid').textContent=r.paid?'Mark unpaid':'Mark paid';
   $('amount-to-pay').value=r.amount===null?'':r.amount.toFixed(2);
-  $('actual-paid').value=r.actualAmount===null?(r.paid?'':r.amount===null?'':r.amount.toFixed(2)):r.actualAmount.toFixed(2);
-  $('payment-date').value=r.paid?r.paidDate:localToday();
+  $('actual-paid').value=r.remainingAmount===null?'':r.remainingAmount.toFixed(2);
+  $('payment-date').value=localToday();
   if(!$('bill-dialog').open)$('bill-dialog').showModal();
 }
 $('payment-form').addEventListener('submit',event=>{
@@ -106,12 +107,12 @@ $('payment-form').addEventListener('submit',event=>{
   const input=$('actual-paid'),paymentDate=$('payment-date');
   if(!input.reportValidity()||!paymentDate.reportValidity()||selectedId===null)return;
   const actualAmount=Number(input.value);
-  if(!Number.isFinite(actualAmount)||actualAmount<0)return;
-  updateBill(selectedId,{paid:true,actualAmount:Math.round(actualAmount*100)/100,paidDate:paymentDate.value});
+  if(!Number.isFinite(actualAmount)||actualAmount<=0)return;
+  PaymentStore.add(selectedId,BillStore.key(date),actualAmount,paymentDate.value);render();openDetails(selectedId);
 });
 $('export-bills').onclick=()=>CsvExport.download('financial-freedom-'+(pageView==='all'?'pay-bills':pageView==='planned'?'planned-bills':pageView+'-payments')+'-'+BillStore.key(date)+'.csv',
-  ['Month','Payee','Due day','Paycheck','Category','Payment method','Frequency','Planned amount','Amount to pay','Actual amount paid','Payment date','Funded','Paid','Phone','Website','Interest rate','Payoff balance','Minimum payment'],
-  filteredRows().map(r=>[BillStore.key(date),r.payee,r.due,r.paycheck,r.category,r.method,r.frequency,r.plannedAmount,r.amount,r.actualAmount,r.paidDate,r.funded?'Yes':'No',r.paid?'Yes':'No',r.phone,r.website,r.interestRate,r.payoff,r.minimumPayment]));
+  ['Month','Payee','Due day','Paycheck','Category','Payment method','Frequency','Planned amount','Amount to pay','Actual amount paid','Remaining amount','Payment count','Payment date','Funded','Paid','Phone','Website','Interest rate','Payoff balance','Minimum payment'],
+  filteredRows().map(r=>[BillStore.key(date),r.payee,r.due,r.paycheck,r.category,r.method,r.frequency,r.plannedAmount,r.amount,r.actualAmount,r.remainingAmount,r.payments.length,r.paidDate,r.funded?'Yes':'No',r.paid?'Yes':'No',r.phone,r.website,r.interestRate,r.payoff,r.minimumPayment]));
 $('amount-form').addEventListener('submit',event=>{
   event.preventDefault();
   const input=$('amount-to-pay');
@@ -126,6 +127,7 @@ $('payment-rows').addEventListener('change',e=>{
   const id=Number(input.dataset.id);
   if(input.dataset.field==='paid'){
     if(input.checked){render();openDetails(id);$('actual-paid').focus()}
+    else if(currentRows().find(r=>r.id===id)?.payments.length){render();openDetails(id)}
     else updateBill(id,{paid:false,actualAmount:null,paidDate:''});
   }else save(id,'funded',input.checked);
 });
@@ -136,10 +138,12 @@ $('prev-month').onclick=()=>{date.setMonth(date.getMonth()-1);render()};
 $('next-month').onclick=()=>{date.setMonth(date.getMonth()+1);render()};
 $('close-dialog').onclick=()=>$('bill-dialog').close();
 $('bill-dialog').addEventListener('click',e=>{if(e.target===$('bill-dialog'))$('bill-dialog').close()});
+$('payment-history').addEventListener('click',e=>{const button=e.target.closest('[data-remove-payment]');if(!button||selectedId===null)return;PaymentStore.remove(selectedId,BillStore.key(date),Number(button.dataset.removePayment));render();openDetails(selectedId)});
 $('detail-funded').onclick=()=>{const r=currentRows().find(x=>x.id===selectedId);if(r)save(r.id,'funded',!r.funded)};
 $('detail-paid').onclick=()=>{
   const r=currentRows().find(x=>x.id===selectedId);
   if(!r)return;
+  if(r.paid&&r.payments.length){$('payment-history').scrollIntoView({block:'nearest'});return}
   if(r.paid)updateBill(r.id,{paid:false,actualAmount:null,paidDate:''});
   else $('payment-form').requestSubmit();
 };

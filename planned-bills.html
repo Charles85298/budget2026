@@ -35,7 +35,7 @@
           <div class="bill-controls">
             <label><span class="sr-only">Search payee</span><input id="search" type="search" placeholder="Search payee"></label>
             <label><span class="sr-only">Filter by paycheck</span><select id="paycheck-filter"><option value="all">All paychecks</option><option value="1">Paycheck 1</option><option value="2">Paycheck 2</option><option value="3">Paycheck 3</option></select></label>
-            <label><span class="sr-only">Filter by status</span><select id="status-filter"><option value="all">All statuses</option><option value="unfunded">Not funded</option><option value="funded">Funded</option><option value="paid">Paid</option></select></label>
+            <label><span class="sr-only">Filter by status</span><select id="status-filter"><option value="all">All statuses</option><option value="unfunded">Not funded</option><option value="funded">Funded</option><option value="partial">Partially paid</option><option value="paid">Paid</option></select></label>
             <label><span class="sr-only">Filter by payment method</span><select id="method-filter"><option value="all">All payment methods</option><option value="manual">Manual payments</option><option value="auto">Auto payments</option><option value="other">Other / unspecified</option></select></label>
             <label class="unpaid-filter"><input id="unpaid-only" type="checkbox"> Unpaid only</label>
             <span id="visible-count" class="result-count"></span>
@@ -49,19 +49,19 @@
   </div>
   <dialog id="bill-dialog" class="bill-dialog" aria-labelledby="dialog-title">
     <div class="dialog-head"><div><span class="eyebrow">BILL DETAILS</span><h2 id="dialog-title"></h2></div><button id="close-dialog" class="close-button" aria-label="Close details">×</button></div>
-    <div id="detail-grid" class="detail-grid"></div>
+    <div id="detail-grid" class="detail-grid"></div><div id="payment-history"></div>
     <form id="amount-form" class="amount-form">
       <label for="amount-to-pay">Amount to pay this month</label>
       <div class="amount-form-row"><input id="amount-to-pay" type="number" min="0" step="0.01" placeholder="Enter amount" required><button class="button secondary" type="submit">Save amount</button></div>
       <small>This changes only this month's bill, not future bills.</small>
     </form>
     <form id="payment-form" class="payment-form">
-      <div class="payment-form-grid"><label>Actual amount paid <input id="actual-paid" type="number" min="0" step="0.01" placeholder="Enter amount" required></label>
+      <div class="payment-form-grid"><label>Payment amount <input id="actual-paid" type="number" min="0.01" step="0.01" placeholder="Enter amount" required></label>
       <label>Payment date <input id="payment-date" type="date" required></label></div>
-      <button class="button primary" type="submit">Save payment</button>
-      <small>Saving marks this bill paid. The planned and amount-to-pay values remain available for comparison.</small>
+      <button class="button primary" type="submit">Add payment</button>
+      <small>Add as many payments as needed. The bill is paid when the total reaches the amount due.</small>
     </form>
     <div class="dialog-actions"><button id="detail-funded" class="button secondary" type="button"></button><button id="detail-paid" class="button primary" type="button"></button></div>
   </dialog>
-  <script src="bills-data.js"></script><script src="bill-store.js"></script><script src="export-csv.js"></script><script src="fund-store.js"></script><script src="pay-bills.js"></script>
+  <script src="bills-data.js"></script><script src="payment-store.js"></script><script src="bill-store.js"></script><script src="export-csv.js"></script><script src="fund-store.js"></script><script src="pay-bills.js"></script>
 </body></html>

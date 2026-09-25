@@ -29,12 +29,14 @@ const FundStore=(()=>{
     const end=monthNumber(monthKey(date)),start=monthNumber(plan.fundStartMonth);
     let cents=Math.round(plan.openingFundBalance*100),unrecorded=0;
     const funded=read();
+    const individual=PaymentStore.all().filter(p=>p.billId===plan.id);
     for(let number=start;number<=end;number++){
       const month=monthKey(monthDate(number)),record=funded[plan.id+':'+month];
       // A contribution in the bill's due month belongs to the following quarter.
       if(record?.funded&&!(beforePayment&&number===end))cents+=Math.round(Number(record.amount)*100);
       if(beforePayment&&number===end)continue;
-      const paidBill=BillStore.billsFor(monthDate(number)).find(b=>b.id===plan.id&&b.paid);
+      for(const payment of individual.filter(p=>p.date.slice(0,7)===month))cents-=Math.round(payment.amount*100);
+      const paidBill=BillStore.billsFor(monthDate(number)).find(b=>b.id===plan.id&&b.paid&&b.payments.length===0);
       if(paidBill){
         if(paidBill.actualAmount===null)unrecorded++;
         else cents-=Math.round(paidBill.actualAmount*100);

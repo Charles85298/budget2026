@@ -32,6 +32,10 @@ function openForm(id=null){
   if(!r)$('income-form').elements.payDate.value=IncomeStore.monthKey(date)+'-15';
   $('income-dialog').showModal();$('income-form').elements.source.focus();
 }
+const recurring=$('recurring-form');
+function fillRecurring(){const t=IncomeStore.templates();recurring.elements.salary.value=t.salary?.amount??'';recurring.elements.ssdi.value=t.ssdi?.amount??'';recurring.elements.salary15.value=t.salary?.salary15Paycheck||1;recurring.elements.salaryEnd.value=t.salary?.salaryEndPaycheck||3;recurring.elements.ssdiPaycheck.value=t.ssdi?.paycheck||2}
+recurring.addEventListener('submit',e=>{e.preventDefault();const f=e.currentTarget;const amount=name=>f.elements[name].value===''?null:Number(f.elements[name].value);IncomeStore.saveTemplates({salary:{amount:amount('salary'),salary15Paycheck:Number(f.elements.salary15.value),salaryEndPaycheck:Number(f.elements.salaryEnd.value)},ssdi:{amount:amount('ssdi'),paycheck:Number(f.elements.ssdiPaycheck.value)}});render()});
+fillRecurring();
 $('add-income').onclick=()=>openForm();
 $('close-income').onclick=$('cancel-income').onclick=()=>$('income-dialog').close();
 $('income-dialog').addEventListener('click',e=>{if(e.target===$('income-dialog'))$('income-dialog').close()});
