@@ -23,6 +23,13 @@ function updateBill(id,fields){
   if($('bill-dialog').open)openDetails(id);
 }
 function save(id,field,value){updateBill(id,{[field]:value})}
+function resetMonthlyOverride(id){
+  let saved={};try{saved=JSON.parse(localStorage.getItem(storageKey())||'{}')||{}}catch{}
+  if(!saved[id])return;
+  for(const field of ['amount','due','paycheck','manualOverride'])delete saved[id][field];
+  if(!Object.keys(saved[id]).length)delete saved[id];
+  window.CloudSync.save(storageKey(),saved);render();openDetails(id);
+}
 function localToday(){
   const today=new Date();
   return today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
@@ -80,6 +87,7 @@ function openDetails(id){
   const fund=plan?FundStore.balance(plan,date,{beforePayment:true}):null;
   $('detail-grid').innerHTML=[
     detail('Planned amount',money(r.plannedAmount)),detail('Amount to pay',money(r.amount)),
+    detail('Monthly override',r.manualOverride?'Yes — manual values take precedence':'No'),
     detail('Total paid',r.actualAmount===null?'—':money(r.actualAmount)),detail('Remaining to pay',money(r.remainingAmount)),
     detail('Payment date',r.paid?r.paidDate:''),
     detail('Due day',String(r.due)),
@@ -97,7 +105,11 @@ function openDetails(id){
   $('payment-history').innerHTML='<h3>Payments</h3>'+(r.payments.length?r.payments.map(p=>`<div class="detail"><span>${escapeHtml(p.date)}</span><strong>${money(p.amount)} <button type="button" data-remove-payment="${p.id}" aria-label="Remove payment">Remove</button></strong></div>`).join(''):'<p class="muted">No individual payments recorded.</p>');
   $('detail-funded').textContent=r.funded?'Mark not funded':'Mark funded';
   $('detail-paid').textContent=r.paid?'Mark unpaid':'Mark paid';
-  $('amount-to-pay').value=r.amount===null?'':r.amount.toFixed(2);
+  $('override-amount').value=r.amount===null?'':r.amount.toFixed(2);
+  $('override-due').value=r.due;
+  $('override-paycheck').value=String(r.paycheck);
+  $('override-badge').hidden=!r.manualOverride;
+  $('reset-override').hidden=!r.manualOverride;
   $('actual-paid').value=r.remainingAmount===null?'':r.remainingAmount.toFixed(2);
   $('payment-date').value=localToday();
   if(!$('bill-dialog').open)$('bill-dialog').showModal();
@@ -113,14 +125,16 @@ $('payment-form').addEventListener('submit',event=>{
 $('export-bills').onclick=()=>CsvExport.download('financial-freedom-'+(pageView==='all'?'pay-bills':pageView==='planned'?'planned-bills':pageView+'-payments')+'-'+BillStore.key(date)+'.csv',
   ['Month','Payee','Due day','Paycheck','Category','Payment method','Frequency','Planned amount','Amount to pay','Actual amount paid','Remaining amount','Payment count','Payment date','Funded','Paid','Phone','Website','Interest rate','Payoff balance','Minimum payment'],
   filteredRows().map(r=>[BillStore.key(date),r.payee,r.due,r.paycheck,r.category,r.method,r.frequency,r.plannedAmount,r.amount,r.actualAmount,r.remainingAmount,r.payments.length,r.paidDate,r.funded?'Yes':'No',r.paid?'Yes':'No',r.phone,r.website,r.interestRate,r.payoff,r.minimumPayment]));
-$('amount-form').addEventListener('submit',event=>{
+$('override-form').addEventListener('submit',event=>{
   event.preventDefault();
-  const input=$('amount-to-pay');
-  if(!input.reportValidity()||selectedId===null)return;
-  const amount=Number(input.value);
-  if(!Number.isFinite(amount)||amount<0)return;
-  save(selectedId,'amount',Math.round(amount*100)/100);
+  if(selectedId===null)return;
+  const amountInput=$('override-amount'),dueInput=$('override-due'),paycheckInput=$('override-paycheck');
+  if(!amountInput.reportValidity()||!dueInput.reportValidity()||!paycheckInput.reportValidity())return;
+  const amount=Number(amountInput.value),due=Number(dueInput.value),paycheck=Number(paycheckInput.value);
+  if(!Number.isFinite(amount)||amount<0||!Number.isInteger(due)||due<1||due>31||![1,2,3].includes(paycheck))return;
+  updateBill(selectedId,{amount:Math.round(amount*100)/100,due,paycheck,manualOverride:true});
 });
+$('reset-override').addEventListener('click',()=>{if(selectedId!==null)resetMonthlyOverride(selectedId)});
 $('payment-rows').addEventListener('click',e=>{const button=e.target.closest('[data-detail]');if(button)openDetails(Number(button.dataset.detail))});
 $('payment-rows').addEventListener('change',e=>{
   const input=e.target.closest('input[data-field]');if(!input)return;

@@ -50,10 +50,15 @@
   <dialog id="bill-dialog" class="bill-dialog" aria-labelledby="dialog-title">
     <div class="dialog-head"><div><span class="eyebrow">BILL DETAILS</span><h2 id="dialog-title"></h2></div><button id="close-dialog" class="close-button" aria-label="Close details">×</button></div>
     <div id="detail-grid" class="detail-grid"></div><div id="payment-history"></div>
-    <form id="amount-form" class="amount-form">
-      <label for="amount-to-pay">Amount to pay this month</label>
-      <div class="amount-form-row"><input id="amount-to-pay" type="number" min="0" step="0.01" placeholder="Enter amount" required><button class="button secondary" type="submit">Save amount</button></div>
-      <small>This changes only this month's bill, not future bills.</small>
+    <form id="override-form" class="amount-form">
+      <div class="override-heading"><div><strong>Manual override for this month</strong><small>Your values below win over the recurring bill rules for this occurrence only.</small></div><span id="override-badge" class="override-badge" hidden>Manual override</span></div>
+      <div class="override-grid">
+        <label>Amount to pay <input id="override-amount" type="number" min="0" step="0.01" required></label>
+        <label>Due day <input id="override-due" type="number" min="1" max="31" step="1" required></label>
+        <label>Paycheck <select id="override-paycheck"><option value="1">Paycheck 1</option><option value="2">Paycheck 2</option><option value="3">Paycheck 3</option></select></label>
+      </div>
+      <div class="override-actions"><button class="button secondary" type="submit">Save monthly override</button><button id="reset-override" class="button secondary" type="button" hidden>Reset to calculated values</button></div>
+      <small>Changing these values does not alter the recurring bill or future months.</small>
     </form>
     <form id="payment-form" class="payment-form">
       <div class="payment-form-grid"><label>Payment amount <input id="actual-paid" type="number" min="0.01" step="0.01" placeholder="Enter amount" required></label>
