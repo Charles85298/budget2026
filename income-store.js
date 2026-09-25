@@ -2,11 +2,11 @@
 const IncomeStore=(()=>{
   const KEY='financial-freedom-income-v1';
   const read=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch{return {}}};
-  const write=data=>localStorage.setItem(KEY,JSON.stringify(data));
+  const write=data=>window.CloudSync.save(KEY,data);
   const monthKey=date=>date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0');
   const TEMPLATES='financial-freedom-income-schedule-v1';
   const templates=()=>{try{return JSON.parse(localStorage.getItem(TEMPLATES)||'{}')||{}}catch{return {}}};
-  const saveTemplates=value=>localStorage.setItem(TEMPLATES,JSON.stringify(value));
+  const saveTemplates=value=>window.CloudSync.save(TEMPLATES,value);
   function fourthWednesday(year,month){const first=new Date(year,month,1).getDay();return 1+(3-first+7)%7+21}
   function scheduled(date){
     const month=monthKey(date),y=date.getFullYear(),m=date.getMonth(),last=new Date(y,m+1,0).getDate(),t=templates();

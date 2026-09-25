@@ -2,7 +2,7 @@
 const BillStore=(()=>{
   const KEY='paywise-demo-bill-management-v1';
   const read=()=>{try{const data=JSON.parse(localStorage.getItem(KEY)||'{}');return {added:data.added||[],changes:data.changes||[],removed:data.removed||[]}}catch{return {added:[],changes:[],removed:[]}}};
-  const write=data=>localStorage.setItem(KEY,JSON.stringify(data));
+  const write=data=>window.CloudSync.save(KEY,data);
   const key=date=>date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0');
   const statuses=date=>{try{return JSON.parse(localStorage.getItem('paywise-demo-payments-v1-'+date.getFullYear()+'-'+(date.getMonth()+1))||'{}')||{}}catch{return {}}};
   const monthNumber=value=>Number(value.slice(0,4))*12+Number(value.slice(5,7))-1;

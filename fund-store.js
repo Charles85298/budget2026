@@ -2,7 +2,7 @@
 const FundStore=(()=>{
   const KEY='financial-freedom-quarterly-funds-v1';
   const read=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch{return {}}};
-  const write=data=>localStorage.setItem(KEY,JSON.stringify(data));
+  const write=data=>window.CloudSync.save(KEY,data);
   const monthNumber=value=>Number(value.slice(0,4))*12+Number(value.slice(5,7))-1;
   const monthDate=n=>new Date(Math.floor(n/12),n%12,1);
   const monthKey=date=>BillStore.key(date);
