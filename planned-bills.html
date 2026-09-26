@@ -32,15 +32,20 @@
         </section>
         <section class="section">
           <div class="section-head"><div><h2>Planned bills</h2><p class="muted">Select a bill to view its full details.</p></div><button class="button secondary" id="export-bills">Download CSV</button></div>
-          <div class="bill-controls">
-            <label><span class="sr-only">Search payee</span><input id="search" type="search" placeholder="Search payee"></label>
-            <label><span class="sr-only">Filter by paycheck</span><select id="paycheck-filter"><option value="all">All paychecks</option><option value="1">Paycheck 1</option><option value="2">Paycheck 2</option><option value="3">Paycheck 3</option></select></label>
-            <label><span class="sr-only">Filter by status</span><select id="status-filter"><option value="all">All statuses</option><option value="unfunded">Not funded</option><option value="funded">Funded</option><option value="partial">Partially paid</option><option value="paid">Paid</option></select></label>
-            <label><span class="sr-only">Filter by payment method</span><select id="method-filter"><option value="all">All payment methods</option><option value="manual">Manual payments</option><option value="auto">Auto payments</option><option value="other">Other / unspecified</option></select></label>
-            <label class="unpaid-filter"><input id="unpaid-only" type="checkbox"> Unpaid only</label>
-            <span id="visible-count" class="result-count"></span>
-          </div>
-          <div class="table-scroll"><table class="payment-table"><thead><tr><th>Payee</th><th>Due</th><th>Paycheck</th><th>Category</th><th>Method</th><th class="right">Planned</th><th class="right">To pay</th><th class="right">Paid amount</th><th>Paid date</th><th>Funded</th><th>Paid</th></tr></thead><tbody id="payment-rows"></tbody></table></div>
+          <div class="table-scroll"><table class="payment-table filterable-table"><thead>
+            <tr class="sortable-head"><th data-sort="payee">Payee</th><th data-sort="due">Due</th><th data-sort="paycheck">Paycheck</th><th data-sort="category">Category</th><th data-sort="method">Method</th><th class="right" data-sort="plannedAmount">Planned</th><th class="right" data-sort="amount">To pay</th><th class="right" data-sort="actualAmount">Paid amount</th><th data-sort="paidDate">Paid date</th><th data-sort="funded">Funded</th><th data-sort="paid">Paid</th></tr>
+            <tr class="column-filters">
+              <th><input id="search" type="search" placeholder="Filter payee" aria-label="Filter payee"></th>
+              <th><select id="due-filter" aria-label="Filter due day"><option value="all">All</option></select></th>
+              <th><select id="paycheck-filter" aria-label="Filter paycheck"><option value="all">All</option><option value="1">#1</option><option value="2">#2</option><option value="3">#3</option></select></th>
+              <th><select id="category-filter" aria-label="Filter category"><option value="all">All</option></select></th>
+              <th><select id="method-filter" aria-label="Filter method"><option value="all">All</option><option value="manual">Manual</option><option value="auto">Auto</option><option value="other">Other</option></select></th>
+              <th></th><th></th><th></th><th></th>
+              <th><select id="funded-filter" aria-label="Filter funded"><option value="all">All</option><option value="yes">Funded</option><option value="no">Not funded</option></select></th>
+              <th><select id="paid-filter" aria-label="Filter paid"><option value="all">All</option><option value="yes">Paid</option><option value="no">Unpaid</option><option value="partial">Partial</option></select></th>
+            </tr>
+          </thead><tbody id="payment-rows"></tbody></table></div>
+          <div class="table-result-bar"><span id="visible-count" class="result-count"></span><button id="clear-filters" class="clear-filters" type="button">Clear filters</button></div>
           <p id="empty-state" class="empty" hidden>No bills match these filters.</p>
         </section>
         <footer>Frontend draft · Bill changes are saved to your account.</footer>

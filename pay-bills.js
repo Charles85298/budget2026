@@ -8,6 +8,7 @@ const date=/^\d{4}-(0[1-9]|1[0-2])$/.test(requestedMonth||'')
   : new Date(2026,9,1);
 const $=id=>document.getElementById(id);
 let selectedId=null;
+let sortState={key:'due',dir:1};
 function storageKey(){return 'paywise-demo-payments-v1-'+date.getFullYear()+'-'+(date.getMonth()+1)}
 function currentRows(){
   return BillStore.billsFor(date);
@@ -42,15 +43,28 @@ function paymentGroup(method){
   return 'other';
 }
 function scopedRows(){return currentRows().filter(r=>pageView==='all'||pageView==='planned'||paymentGroup(r.method)===pageView)}
-function filteredRows(){return scopedRows().filter(r=>
+function filteredRows(){
+  const due=$('due-filter')?.value||'all', category=$('category-filter')?.value||'all';
+  const funded=$('funded-filter')?.value||'all', paid=$('paid-filter')?.value||'all';
+  const rows=scopedRows().filter(r=>
     r.payee.toLowerCase().includes($('search').value.trim().toLowerCase()) &&
+    (due==='all'||r.due===Number(due)) &&
     ($('paycheck-filter').value==='all'||r.paycheck===Number($('paycheck-filter').value)) &&
-    ($('status-filter').value==='all'||status(r)===$('status-filter').value) &&
-    (pageView!=='all'||$('method-filter').value==='all'||paymentGroup(r.method)===$('method-filter').value) &&
-    (pageView==='planned'||(!r.paid||pageView==='all'&&!$('unpaid-only').checked))
-  ).sort((a,b)=>a.paycheck-b.paycheck||a.due-b.due||a.id-b.id)}
+    (category==='all'||(r.category||'—')===category) &&
+    ($('method-filter').value==='all'||paymentGroup(r.method)===$('method-filter').value) &&
+    (funded==='all'||r.funded===(funded==='yes')) &&
+    (paid==='all'||(paid==='partial'?status(r)==='partial':r.paid===(paid==='yes')))
+  );
+  const value=(r,key)=>key==='method'?paymentGroup(r.method):r[key];
+  return rows.sort((a,b)=>{let av=value(a,sortState.key),bv=value(b,sortState.key);if(av==null)av='';if(bv==null)bv='';if(typeof av==='string'){av=av.toLowerCase();bv=String(bv).toLowerCase()}return (av>bv?1:av<bv?-1:0)*sortState.dir||(a.id-b.id)});
+}
+function syncFilterOptions(scope){
+  const fill=(id,values)=>{const el=$(id);if(!el)return;const keep=el.value;el.innerHTML='<option value="all">All</option>'+values.map(v=>'<option value="'+escapeHtml(v)+'">'+escapeHtml(v)+'</option>').join('');if([...el.options].some(o=>o.value===keep))el.value=keep};
+  fill('due-filter',[...new Set(scope.map(r=>String(r.due)))].sort((a,b)=>Number(a)-Number(b)));
+  fill('category-filter',[...new Set(scope.map(r=>r.category||'—'))].sort((a,b)=>a.localeCompare(b)));
+}
 function render(){
-  const scope=scopedRows(),shown=filteredRows();
+  const scope=scopedRows();syncFilterOptions(scope);const shown=filteredRows();
   $('month-label').textContent=date.toLocaleDateString('en-US',{month:'long',year:'numeric'});
   const monthParam='?month='+date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0');
   document.querySelectorAll('.nav-group a').forEach(a=>{a.href=a.href.split('?')[0]+monthParam});
@@ -150,9 +164,10 @@ $('payment-rows').addEventListener('change',e=>{
     }else {PaymentStore.clear(id,BillStore.key(date));updateBill(id,{paid:false,actualAmount:null,paidDate:''});}
   }else save(id,'funded',input.checked);
 });
-for(const id of ['search','paycheck-filter','status-filter','method-filter','unpaid-only'])$(id).addEventListener(id==='search'?'input':'change',render);
-$('method-filter').value=['manual','auto'].includes(params.get('view'))?params.get('view'):'all';
-$('unpaid-only').checked=['manual','auto'].includes(params.get('view'));
+for(const id of ['search','due-filter','paycheck-filter','category-filter','method-filter','funded-filter','paid-filter']){const el=$(id);if(el)el.addEventListener(id==='search'?'input':'change',render)}
+document.querySelectorAll('th[data-sort]').forEach(th=>th.addEventListener('click',()=>{const key=th.dataset.sort;if(sortState.key===key)sortState.dir*=-1;else sortState={key,dir:1};document.querySelectorAll('th[data-sort]').forEach(x=>x.classList.remove('sort-asc','sort-desc'));th.classList.add(sortState.dir===1?'sort-asc':'sort-desc');render()}));
+$('clear-filters')?.addEventListener('click',()=>{for(const id of ['search','due-filter','paycheck-filter','category-filter','method-filter','funded-filter','paid-filter']){const el=$(id);if(el)el.value=id==='search'?'':'all'};render()});
+if(pageView==='auto')$('method-filter').value='auto';else if(pageView==='manual')$('method-filter').value='manual';
 $('prev-month').onclick=()=>{date.setMonth(date.getMonth()-1);render()};
 $('next-month').onclick=()=>{date.setMonth(date.getMonth()+1);render()};
 $('close-dialog').onclick=()=>$('bill-dialog').close();

@@ -4,7 +4,11 @@ const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>'
 const params=new URLSearchParams(location.search),selected=params.get('month');
 const date=/^\d{4}-(0[1-9]|1[0-2])$/.test(selected||'')?new Date(Number(selected.slice(0,4)),Number(selected.slice(5))-1,1):new Date(2026,9,1);
 function render(){
-  const month=BillStore.key(date),plans=BillStore.quarterlyPlans(date);
+  const month=BillStore.key(date),allPlans=BillStore.quarterlyPlans(date);
+  const search=($('fund-search')?.value||'').trim().toLowerCase(), paycheck=$('fund-paycheck')?.value||'all', funded=$('fund-funded')?.value||'all', sort=$('fund-sort')?.value||'payee';
+  let plans=allPlans.filter(plan=>{const entry=FundStore.entry(plan,date);return plan.payee.toLowerCase().includes(search)&&(paycheck==='all'||entry.paycheck===Number(paycheck))&&(funded==='all'||entry.funded===(funded==='yes'))});
+  const sortValue=plan=>{const entry=FundStore.entry(plan,date),fund=FundStore.balance(plan,date),payment=BillStore.billsFor(date).find(b=>b.id===plan.id);const due=FundStore.nextDue(plan,payment?.paid?new Date(date.getFullYear(),date.getMonth()+1,1):date);return {entry,fund,due}};
+  plans.sort((a,b)=>{const av=sortValue(a),bv=sortValue(b);if(sort==='payee-desc')return b.payee.localeCompare(a.payee);if(sort==='next')return av.due-bv.due;if(sort==='amount-desc')return (b.amount||0)-(a.amount||0);if(sort==='balance-desc')return bv.fund.amount-av.fund.amount;return a.payee.localeCompare(b.payee)});
   $('month-label').textContent=date.toLocaleDateString('en-US',{month:'long',year:'numeric'});
   document.querySelectorAll('.nav-group a').forEach(a=>a.href=a.href.split('?')[0]+'?month='+month);
   let target=0,contributed=0,balance=0;
@@ -22,9 +26,9 @@ function render(){
       ${fund.unrecorded?`<p class="fund-alert">${fund.unrecorded} paid bill${fund.unrecorded===1?'':'s'} need an actual payment amount to reconcile this balance.</p>`:''}
       <div class="fund-card-actions"><button class="button secondary" type="button" data-edit-bill="${plan.id}">Edit entire bill</button>${payment?`<a class="fund-bill-link" href="planned-bills.html?month=${month}">Open bill for payment →</a>`:''}</div></article>`;
   }).join('');
-  $('target-total').textContent=money(target);$('fund-count').textContent=plans.length+' quarterly fund'+(plans.length===1?'':'s');
+  $('target-total').textContent=money(target);$('fund-count').textContent=allPlans.length+' quarterly fund'+(allPlans.length===1?'':'s');$('fund-visible').textContent=plans.length+' of '+allPlans.length+' shown';
   $('contributed-total').textContent=money(contributed);$('balance-total').textContent=money(balance);
-  $('fund-empty').hidden=plans.length>0;
+  $('fund-empty').textContent=allPlans.length?'No quarterly funds match these filters.':'No quarterly funds are active in this month.';$('fund-empty').hidden=plans.length>0;
 }
 $('fund-list').addEventListener('submit',event=>{
   const form=event.target.closest('form[data-id]');if(!form)return;
@@ -39,6 +43,8 @@ $('export-funds').onclick=()=>CsvExport.download('financial-freedom-quarterly-fu
     const next=FundStore.nextDue(plan,bill?.paid?new Date(date.getFullYear(),date.getMonth()+1,1):date);
     return [BillStore.key(date),plan.payee,plan.amount,plan.due,BillStore.key(next),entry.paycheck,entry.contribution,entry.fundedAmount,entry.funded?'Yes':'No',plan.openingFundBalance,balance.amount,bill?.amount??null,bill?.actualAmount??null,bill?.paidDate??'',balance.unrecorded];
   }));
+for(const id of ['fund-search','fund-paycheck','fund-funded','fund-sort'])$(id).addEventListener(id==='fund-search'?'input':'change',render);
+$('fund-clear').onclick=()=>{$('fund-search').value='';$('fund-paycheck').value='all';$('fund-funded').value='all';$('fund-sort').value='payee';render()};
 $('prev-month').onclick=()=>{date.setMonth(date.getMonth()-1);render()};
 $('next-month').onclick=()=>{date.setMonth(date.getMonth()+1);render()};
 render();
