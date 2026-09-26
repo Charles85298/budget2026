@@ -5,11 +5,11 @@
     'index.html':['bills-data.js','payment-store.js','bill-store.js','export-csv.js','fund-store.js','income-store.js','app.js'],
     'income.html':['bills-data.js','payment-store.js','bill-store.js','fund-store.js','income-store.js','export-csv.js','income.js'],
     'bill-management.html':['bills-data.js','payment-store.js','bill-store.js','export-csv.js','bill-management.js'],
-    'quarterly-funds.html':['bills-data.js','payment-store.js','bill-store.js','export-csv.js','fund-store.js','quarterly-funds.js'],
-    'pay-bills.html':['bills-data.js','payment-store.js','bill-store.js','export-csv.js','fund-store.js','pay-bills.js'],
-    'planned-bills.html':['bills-data.js','payment-store.js','bill-store.js','export-csv.js','fund-store.js','pay-bills.js'],
-    'auto-payments.html':['bills-data.js','payment-store.js','bill-store.js','export-csv.js','fund-store.js','pay-bills.js'],
-    'manual-payments.html':['bills-data.js','payment-store.js','bill-store.js','export-csv.js','fund-store.js','pay-bills.js']
+    'quarterly-funds.html':['bills-data.js','payment-store.js','bill-store.js','export-csv.js','fund-store.js','bill-editor.js','quarterly-funds.js'],
+    'pay-bills.html':['bills-data.js','payment-store.js','bill-store.js','export-csv.js','fund-store.js','bill-editor.js','pay-bills.js'],
+    'planned-bills.html':['bills-data.js','payment-store.js','bill-store.js','export-csv.js','fund-store.js','bill-editor.js','pay-bills.js'],
+    'auto-payments.html':['bills-data.js','payment-store.js','bill-store.js','export-csv.js','fund-store.js','bill-editor.js','pay-bills.js'],
+    'manual-payments.html':['bills-data.js','payment-store.js','bill-store.js','export-csv.js','fund-store.js','bill-editor.js','pay-bills.js']
   };
   const page=location.pathname.split('/').pop()||'index.html';
   const status=document.createElement('div');status.className='cloud-status';status.setAttribute('role','status');status.textContent='Loading your budget…';document.body.prepend(status);

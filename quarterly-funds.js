@@ -20,7 +20,7 @@ function render(){
       <form class="fund-action" data-id="${plan.id}"><label>Amount moved to fund <input name="amount" type="number" min="0" step="0.01" value="${entry.funded?entry.fundedAmount:entry.contribution??''}" required></label><button class="button ${entry.funded?'secondary':'primary'}" type="submit">${entry.funded?'Update contribution':'Mark funded'}</button>${entry.funded?'<button class="undo-fund" type="button" data-undo="'+plan.id+'">Undo</button>':''}</form>
       ${shortfall?`<p class="fund-alert">This bill is ${money(shortfall)} above the recorded fund balance.</p>`:''}
       ${fund.unrecorded?`<p class="fund-alert">${fund.unrecorded} paid bill${fund.unrecorded===1?'':'s'} need an actual payment amount to reconcile this balance.</p>`:''}
-      ${payment?`<a class="fund-bill-link" href="planned-bills.html?month=${month}">Open bill for payment →</a>`:''}</article>`;
+      <div class="fund-card-actions"><button class="button secondary" type="button" data-edit-bill="${plan.id}">Edit entire bill</button>${payment?`<a class="fund-bill-link" href="planned-bills.html?month=${month}">Open bill for payment →</a>`:''}</div></article>`;
   }).join('');
   $('target-total').textContent=money(target);$('fund-count').textContent=plans.length+' quarterly fund'+(plans.length===1?'':'s');
   $('contributed-total').textContent=money(contributed);$('balance-total').textContent=money(balance);
@@ -31,7 +31,7 @@ $('fund-list').addEventListener('submit',event=>{
   event.preventDefault();const input=form.elements.amount;if(!input.reportValidity())return;
   try{FundStore.setContribution(Number(form.dataset.id),date,input.value,true);render()}catch(error){input.setCustomValidity(error.message);input.reportValidity();input.setCustomValidity('')}
 });
-$('fund-list').addEventListener('click',event=>{const button=event.target.closest('[data-undo]');if(button){FundStore.setContribution(Number(button.dataset.undo),date,0,false);render()}});
+$('fund-list').addEventListener('click',event=>{const edit=event.target.closest('[data-edit-bill]');if(edit){FullBillEditor.open(Number(edit.dataset.editBill),date,render);return}const button=event.target.closest('[data-undo]');if(button){FundStore.setContribution(Number(button.dataset.undo),date,0,false);render()}});
 $('export-funds').onclick=()=>CsvExport.download('financial-freedom-quarterly-funds-'+BillStore.key(date)+'.csv',
   ['Month','Payee','Quarterly bill amount','Due day','Next due month','Funding paycheck','Suggested contribution','Funded contribution','Contribution funded','Amount already saved','Current fund balance','Bill due this month','Actual bill payment','Payment date','Unrecorded paid bills'],
   BillStore.quarterlyPlans(date).map(plan=>{

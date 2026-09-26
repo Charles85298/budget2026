@@ -134,6 +134,7 @@ $('override-form').addEventListener('submit',event=>{
   if(!Number.isFinite(amount)||amount<0||!Number.isInteger(due)||due<1||due>31||![1,2,3].includes(paycheck))return;
   updateBill(selectedId,{amount:Math.round(amount*100)/100,due,paycheck,manualOverride:true});
 });
+$('edit-entire-bill').addEventListener('click',()=>{if(selectedId!==null)FullBillEditor.open(selectedId,date,()=>{render();openDetails(selectedId)})});
 $('reset-override').addEventListener('click',()=>{if(selectedId!==null)resetMonthlyOverride(selectedId)});
 $('payment-rows').addEventListener('click',e=>{const button=e.target.closest('[data-detail]');if(button)openDetails(Number(button.dataset.detail))});
 $('payment-rows').addEventListener('change',e=>{
@@ -141,8 +142,7 @@ $('payment-rows').addEventListener('change',e=>{
   const id=Number(input.dataset.id);
   if(input.dataset.field==='paid'){
     if(input.checked){render();openDetails(id);$('actual-paid').focus()}
-    else if(currentRows().find(r=>r.id===id)?.payments.length){render();openDetails(id)}
-    else updateBill(id,{paid:false,actualAmount:null,paidDate:''});
+    else {PaymentStore.clear(id,BillStore.key(date));updateBill(id,{paid:false,actualAmount:null,paidDate:''});}
   }else save(id,'funded',input.checked);
 });
 for(const id of ['search','paycheck-filter','status-filter','method-filter','unpaid-only'])$(id).addEventListener(id==='search'?'input':'change',render);
@@ -157,8 +157,7 @@ $('detail-funded').onclick=()=>{const r=currentRows().find(x=>x.id===selectedId)
 $('detail-paid').onclick=()=>{
   const r=currentRows().find(x=>x.id===selectedId);
   if(!r)return;
-  if(r.paid&&r.payments.length){$('payment-history').scrollIntoView({block:'nearest'});return}
-  if(r.paid)updateBill(r.id,{paid:false,actualAmount:null,paidDate:''});
+  if(r.paid){PaymentStore.clear(r.id,BillStore.key(date));updateBill(r.id,{paid:false,actualAmount:null,paidDate:''});}
   else $('payment-form').requestSubmit();
 };
 render();

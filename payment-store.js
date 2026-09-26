@@ -12,6 +12,7 @@ const PaymentStore=(()=>{
     (data[key(id,month)]??=[]).push(entry);write(data);return entry;
   }
   function remove(id,month,paymentId){const data=read(),slot=key(id,month);data[slot]=(data[slot]||[]).filter(p=>p.id!==paymentId);write(data)}
+  function clear(id,month){const data=read();delete data[key(id,month)];write(data)}
   function all(){return Object.entries(read()).flatMap(([slot,payments])=>payments.map(p=>({...p,billId:Number(slot.split(':')[0]),dueMonth:slot.split(':')[1]})))}
-  return {list,add,remove,all};
+  return {list,add,remove,clear,all};
 })();
