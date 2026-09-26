@@ -55,7 +55,7 @@ function render(){
   const monthParam='?month='+date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0');
   document.querySelectorAll('.nav-group a').forEach(a=>{a.href=a.href.split('?')[0]+monthParam});
   $('preview-message').textContent=date.getFullYear()===2026&&date.getMonth()===9
-    ? 'October 2026 includes the statuses you provided. Changes are saved only in this browser.'
+    ? 'October 2026 includes your migrated statuses. Changes are saved to Supabase.'
     : 'Blank frequencies are treated as monthly in this preview. Quarterly and yearly schedules need their start months.';
   for(const [key,predicate] of [['due',r=>!r.paid],['funded',r=>r.funded&&!r.paid],['paid',r=>r.paid]]){
     const group=scope.filter(predicate);
