@@ -141,8 +141,13 @@ $('payment-rows').addEventListener('change',e=>{
   const input=e.target.closest('input[data-field]');if(!input)return;
   const id=Number(input.dataset.id);
   if(input.dataset.field==='paid'){
-    if(input.checked){render();openDetails(id);$('actual-paid').focus()}
-    else {PaymentStore.clear(id,BillStore.key(date));updateBill(id,{paid:false,actualAmount:null,paidDate:''});}
+    if(input.checked){
+      const r=currentRows().find(x=>x.id===id);
+      if(!r||r.remainingAmount===null){input.checked=false;openDetails(id);$('actual-paid').focus();return;}
+      if(r.remainingAmount>0)PaymentStore.add(id,BillStore.key(date),r.remainingAmount,localToday());
+      else updateBill(id,{paid:true,paidDate:localToday()});
+      render();
+    }else {PaymentStore.clear(id,BillStore.key(date));updateBill(id,{paid:false,actualAmount:null,paidDate:''});}
   }else save(id,'funded',input.checked);
 });
 for(const id of ['search','paycheck-filter','status-filter','method-filter','unpaid-only'])$(id).addEventListener(id==='search'?'input':'change',render);
