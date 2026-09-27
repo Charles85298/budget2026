@@ -11,10 +11,21 @@
     'auto-payments.html':['bills-data.js','payment-store.js','bill-store.js','export-csv.js','fund-store.js','bill-editor.js','pay-bills.js'],
     'manual-payments.html':['bills-data.js','payment-store.js','bill-store.js','export-csv.js','fund-store.js','bill-editor.js','pay-bills.js']
   };
-  const rawPage=location.pathname.split('/').pop()||'index.html';
-  // Cloudflare serves extensionless routes (for example /quarterly-funds).
-  // Normalize them back to the source HTML filename so the correct page scripts load.
-  const page=rawPage==='index'||rawPage===''?'index.html':(rawPage.includes('.')?rawPage:rawPage+'.html');
+  const rawPage=location.pathname.replace(/\/+$/,'').split('/').pop()||'index';
+  // Cloudflare may serve HTML at extensionless URLs and may normalize paths.
+  // Prefer the page's own DOM markers so routing cannot prevent its controller from loading.
+  const domPage=()=>{
+    if(document.getElementById('manage-rows')) return 'bill-management.html';
+    if(document.getElementById('fund-list')) return 'quarterly-funds.html';
+    if(document.getElementById('payment-rows')){
+      const view=document.body.dataset.pageView||'all';
+      return view==='planned'?'planned-bills.html':view==='auto'?'auto-payments.html':view==='manual'?'manual-payments.html':'pay-bills.html';
+    }
+    if(document.getElementById('income-rows')) return 'income.html';
+    return 'index.html';
+  };
+  const routePage=rawPage==='index'?'index.html':(rawPage.includes('.')?rawPage:rawPage+'.html');
+  const page=scriptMap[routePage]?routePage:domPage();
   const status=document.createElement('div');status.className='cloud-status';status.setAttribute('role','status');status.textContent='Loading your budget…';document.body.prepend(status);
   const monthKey=d=>String(d||'').slice(0,7);
   const monthDate=m=>/^\d{4}-\d{2}$/.test(m||'')?m+'-01':m;
@@ -24,7 +35,7 @@
     if(!window.supabase?.createClient)throw Error('Could not load the Supabase client. Check your connection.');
     const cfg=window.FinancialFreedomConfig,client=window.supabase.createClient(cfg.url,cfg.publishableKey);
     const {data:{user},error:authError}=await client.auth.getUser();
-    if(authError||!user){location.replace('login.html?next='+encodeURIComponent(page+location.search));return}
+    if(authError||!user){location.replace('/login.html?next='+encodeURIComponent(page+location.search));return}
     const tables=['bills','bill_changes','bill_occurrences','bill_payments','bill_funding','income_templates','income'];
     const results=await Promise.all(tables.map(t=>client.from(t).select('*')));
     const failed=results.find(r=>r.error);if(failed)throw Error('Could not load normalized budget data: '+failed.error.message);
@@ -60,8 +71,8 @@
     async function syncTemplates(v){const rows=[];if(v.salary){rows.push({owner_id:user.id,template_key:'salary15',source:'Salary',amount:Number(v.salary.amount),paycheck:Number(v.salary.salary15Paycheck||1),schedule_rule:'day_15',settings:{}},{owner_id:user.id,template_key:'salaryEnd',source:'Salary',amount:Number(v.salary.amount),paycheck:Number(v.salary.salaryEndPaycheck||2),schedule_rule:'end_of_month',settings:{}})}if(v.ssdi)rows.push({owner_id:user.id,template_key:'ssdi',source:"Wife's SSDI",amount:Number(v.ssdi.amount),paycheck:Number(v.ssdi.paycheck||3),schedule_rule:'fourth_wednesday',settings:{}});if(rows.length){const {error}=await client.from('income_templates').upsert(rows,{onConflict:'owner_id,template_key'});if(error)throw error}}
     const save=(key,value)=>{localStorage.setItem(key,JSON.stringify(value));return enqueue(async()=>{if(key==='paywise-demo-bill-management-v1')return syncManagement(value);if(/^paywise-demo-payments-v1-\d{4}-\d{1,2}$/.test(key))return syncOccurrences(key,value);if(key==='financial-freedom-payment-ledger-v1')return syncLedger(value);if(key==='financial-freedom-quarterly-funds-v1')return syncFunding(value);if(key==='financial-freedom-income-v1')return syncIncome(value);if(key==='financial-freedom-income-schedule-v1')return syncTemplates(value)})};
     window.CloudSync={save,client,user,baseBills,queue:()=>queue,normalized:true};
-    for(const source of scriptMap[page]||[]){await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=source;s.onload=resolve;s.onerror=()=>reject(Error('Could not load '+source));document.body.append(s)})}
-    const header=document.querySelector('.topbar a[href="login.html"]');if(header){const button=document.createElement('button');button.className='auth-signout';button.type='button';button.textContent='Sign out';button.onclick=async()=>{await queue.catch(()=>{});await client.auth.signOut();location.replace('login.html')};header.replaceWith(button)}
+    for(const source of scriptMap[page]||[]){await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='/'+source;s.onload=resolve;s.onerror=()=>reject(Error('Could not load '+source));document.body.append(s)})}
+    const header=document.querySelector('.topbar a[href="login.html"]');if(header){const button=document.createElement('button');button.className='auth-signout';button.type='button';button.textContent='Sign out';button.onclick=async()=>{await queue.catch(()=>{});await client.auth.signOut();location.replace('/login.html')};header.replaceWith(button)}
     status.hidden=true;
   }catch(error){status.hidden=false;status.textContent=error.message;document.querySelector('.app-shell')?.remove()}
 })();
