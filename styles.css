@@ -130,3 +130,35 @@ footer{color:#7B8B77}.login-page{background:#F7F8F3}.login-aside{background:line
   .dialog-actions{padding:16px 20px 22px}
   .payment-section,.override-section{padding-left:20px!important;padding-right:20px!important}
 }
+
+/* On My Dime mobile usability pass */
+@media (max-width:640px){
+  html{-webkit-text-size-adjust:100%}
+  body{overflow-x:hidden}
+  .sidebar{padding:12px 14px}.sidebar .brand{justify-content:center}
+  .sidebar nav{gap:6px;scrollbar-width:thin;padding:4px 0 8px;scroll-snap-type:x proximity}
+  .sidebar nav a{min-height:44px;padding:10px 13px;scroll-snap-align:start}
+  .topbar{padding:0 14px}.topbar .crumb{max-width:58vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .topbar a{min-height:40px;display:flex;align-items:center;padding:7px 11px}
+  .content{padding:16px 12px 30px}.page-heading{padding:18px 16px;border-radius:14px}.page-heading h1{font-size:1.7rem}
+  .hero-coin{display:none}.month-picker{width:100%;justify-content:space-between}.month-picker strong{min-width:0;flex:1}
+  .stats{gap:10px}.stat{padding:17px 18px}.section{margin-top:26px}.section-head{gap:12px}.section-actions{width:100%;display:grid;gap:9px}.section-actions>*{width:100%}
+  .button{min-height:44px}.bill-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px}.bill-controls>*{min-width:0!important;width:100%!important}.bill-controls .result-count{grid-column:1/-1}
+  .fund-filter-row{grid-template-columns:1fr!important}.fund-filter-row>*{min-width:0}
+  .table-scroll{overflow:visible;border:0;background:transparent;box-shadow:none}
+  .table-scroll table{min-width:0;width:100%;display:block}.table-scroll tbody{display:grid;gap:10px}.table-scroll tbody tr{display:grid;grid-template-columns:1fr 1fr;background:#fff;border:1px solid #DCE4D8;border-radius:13px;padding:10px 12px;box-shadow:0 6px 18px rgba(36,59,47,.05)}
+  .table-scroll tbody td{display:flex;flex-direction:column;justify-content:center;min-width:0;padding:8px 7px;border:0;text-align:left!important;overflow-wrap:anywhere}
+  .table-scroll tbody td::before{content:attr(data-label);display:block;margin-bottom:3px;color:#7A8976;font-size:.68rem;font-weight:800;letter-spacing:.055em;text-transform:uppercase}
+  .table-scroll tbody td:first-child{grid-column:1/-1;border-bottom:1px solid #E5EADF;padding-bottom:10px;margin-bottom:2px}.table-scroll tbody td:first-child .payee-button,.table-scroll tbody td:first-child.payee{font-size:1rem}
+  .table-scroll tbody td:empty{display:none}.table-scroll tbody td .check-label{justify-content:flex-start;min-height:40px}.table-scroll tbody td input[type=checkbox]{width:22px;height:22px}
+  .table-scroll table:not(.filterable-table) thead{display:none}
+  .filterable-table thead{display:block;margin-bottom:10px}.filterable-table thead>tr:first-child{display:none}.filterable-table .column-filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#F7F9F4;border:1px solid #DCE4D8;border-radius:13px;padding:10px}
+  .filterable-table .column-filters th{display:block;padding:0;border:0;background:transparent}.filterable-table .column-filters th:empty{display:none}.filterable-table .column-filters input,.filterable-table .column-filters select{width:100%;min-width:0;min-height:44px}
+  .manage-table thead{display:none}
+  .paycheck-grid{gap:10px}.paycheck-card{min-height:165px}
+  .bill-dialog{width:calc(100vw - 16px);max-height:94dvh;border-radius:14px}.dialog-head{padding:18px 16px;position:sticky;top:0;background:#fff;z-index:3}.detail-grid{padding:8px 16px 14px}.dialog-actions{padding:12px 16px 18px;position:sticky;bottom:0;background:#fff;border-top:1px solid #E5EADF}.dialog-actions button{flex:1 1 100%}
+  .payment-section,.override-section{padding-left:16px!important;padding-right:16px!important}.payment-form-grid,.override-grid{grid-template-columns:1fr!important}
+  input,select,textarea{font-size:16px!important}
+  footer{margin-top:28px;text-align:center}
+}
+@media (max-width:380px){.bill-controls{grid-template-columns:1fr}.filterable-table .column-filters{grid-template-columns:1fr}.table-scroll tbody tr{grid-template-columns:1fr}.table-scroll tbody td:first-child{grid-column:auto}}
