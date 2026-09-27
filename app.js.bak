@@ -28,9 +28,8 @@ function render(){
   document.getElementById('fund-link').href='quarterly-funds.html?month='+month;
   document.getElementById('manage-income-link').href='income.html?month='+month;
   document.querySelector('.sidebar a[href^="income.html"]').href='income.html?month='+month;
-  const overviewMessage=document.getElementById('overview-message');
-  if(overviewMessage) overviewMessage.textContent=IncomeStore.entries(displayDate).length
-    ? 'Quarterly contributions are included in paycheck commitments.'
+  document.getElementById('overview-message').textContent=IncomeStore.entries(displayDate).length
+    ? 'Quarterly contributions are included in paycheck commitments. Income and bill changes stay in this browser.'
     : 'Quarterly contributions are included in paycheck commitments. Add income to see what remains from each paycheck.';
   const auto=unpaid.filter(r=>paymentGroup(r.method)==='auto');
   const manual=unpaid.filter(r=>paymentGroup(r.method)==='manual');
