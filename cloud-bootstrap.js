@@ -11,7 +11,10 @@
     'auto-payments.html':['bills-data.js','payment-store.js','bill-store.js','export-csv.js','fund-store.js','bill-editor.js','pay-bills.js'],
     'manual-payments.html':['bills-data.js','payment-store.js','bill-store.js','export-csv.js','fund-store.js','bill-editor.js','pay-bills.js']
   };
-  const page=location.pathname.split('/').pop()||'index.html';
+  const rawPage=location.pathname.split('/').pop()||'index.html';
+  // Cloudflare serves extensionless routes (for example /quarterly-funds).
+  // Normalize them back to the source HTML filename so the correct page scripts load.
+  const page=rawPage==='index'||rawPage===''?'index.html':(rawPage.includes('.')?rawPage:rawPage+'.html');
   const status=document.createElement('div');status.className='cloud-status';status.setAttribute('role','status');status.textContent='Loading your budget…';document.body.prepend(status);
   const monthKey=d=>String(d||'').slice(0,7);
   const monthDate=m=>/^\d{4}-\d{2}$/.test(m||'')?m+'-01':m;

@@ -76,3 +76,57 @@ body{background:linear-gradient(180deg,#FBFCF8 0%,#F5F7EF 100%);color:var(--ink)
 .fund-filter-row,.quarterly-saved-summary{background:#F7F9F4!important;border-color:#DCE4D8!important}.fund-filter-row label{color:#71816D}.result-count{color:#7A8976}.empty{background:#fff;color:#7A8976}.cloud-status,.cloud-import{background:#EEF3E8;color:#405441}.override-badge{background:#E8F1E3;color:#426348;border-color:#C5D7BE}.override-grid label{color:#657662}
 .bill-dialog{background:#fff;color:#243B2F;border-color:#D2DDCC;box-shadow:0 30px 90px rgba(36,59,47,.24)}.bill-dialog::backdrop{background:rgba(36,59,47,.35)}.dialog-head{border-bottom-color:#E1E8DD}.dialog-head h2{color:#243B2F}.close-button{background:#EEF3E8;color:#526452}.detail{border-bottom-color:#E5EADF}.detail span{color:#7A8976}.detail strong{color:#243B2F}
 footer{color:#7B8B77}.login-page{background:#F7F8F3}.login-aside{background:linear-gradient(145deg,#F5F7EF,#E6EFE1);color:#243B2F;border-right:1px solid #D7E0D0}.aside-copy .eyebrow{color:#53734B}.aside-copy h1,.login-card h2{color:#243B2F}.aside-copy p,.aside-foot{color:#667862}.login-content{background:#FBFCF8}.login-card{background:#fff;border-color:#D7E0D0;box-shadow:var(--shadow)}.login-card input{background:#fff;border-color:#CBD7C5;color:#243B2F;outline-color:#58C96A}.password-wrap button{color:#477A4E}
+
+/* ===== Site-wide spacing and margin refinement ===== */
+@media (min-width: 761px){
+  .app-shell{grid-template-columns:242px minmax(0,1fr);column-gap:0}
+  .sidebar{margin:14px 0 14px 14px;min-height:calc(100vh - 28px);height:calc(100vh - 28px)}
+  .topbar{margin:14px 18px 0 22px;padding-left:28px;padding-right:28px}
+  .content{max-width:1540px;margin:0 auto;padding:36px 46px 52px}
+  .page-heading{padding:28px 32px}
+  .section{margin-top:42px}
+  .section-head{margin-bottom:20px}
+  .stats,.paycheck-grid{gap:20px}
+  .stat,.paycheck-card{padding:24px 26px}
+  .table-scroll{margin-top:4px}
+  th,td{padding-left:20px;padding-right:20px}
+  .column-filters th{padding:9px 7px}
+  .fund-filter-row{padding:14px 16px;gap:12px;margin-bottom:20px}
+  .bill-controls{gap:12px;margin-bottom:20px}
+
+  /* Native dialogs are centered in the usable content area, not under the sidebar. */
+  .bill-dialog{position:fixed;left:242px;right:0;margin:auto}
+  .dialog-head{padding:28px 32px}
+  .detail-grid{padding:14px 32px 24px;gap:0 28px}
+  .dialog-actions{padding:20px 32px 28px}
+  .payment-section,.override-section{padding-left:32px!important;padding-right:32px!important}
+}
+
+/* Consistent breathing room inside forms and editing surfaces. */
+.bill-dialog form{min-width:0}
+.override-heading{margin-bottom:16px}
+.override-grid{gap:14px 16px}
+.override-grid label{gap:8px}
+.override-grid input,.override-grid select{padding:11px 13px}
+.override-actions{margin-top:16px}
+.detail{padding:16px 0}
+
+@media (max-width: 1050px) and (min-width:761px){
+  .app-shell{grid-template-columns:210px minmax(0,1fr)}
+  .content{padding:30px 30px 44px}
+  .topbar{margin-left:18px;margin-right:14px}
+  .bill-dialog{left:210px;width:min(620px,calc(100vw - 238px))}
+}
+
+@media (max-width:760px){
+  .content{padding:24px 18px 40px}
+  .page-heading{padding:22px 20px}
+  .section{margin-top:32px}
+  .section-head{margin-bottom:16px}
+  .table-scroll{border-radius:12px}
+  .bill-dialog{left:0;right:0;margin:auto;width:calc(100vw - 24px)}
+  .dialog-head{padding:22px 20px}
+  .detail-grid{padding:10px 20px 18px}
+  .dialog-actions{padding:16px 20px 22px}
+  .payment-section,.override-section{padding-left:20px!important;padding-right:20px!important}
+}
