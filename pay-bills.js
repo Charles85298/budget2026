@@ -72,14 +72,29 @@ function render(){
   if(previewMessage) previewMessage.textContent=date.getFullYear()===2026&&date.getMonth()===9
     ? 'October 2026 includes your migrated statuses. Changes are saved to Supabase.'
     : 'Blank frequencies are treated as monthly. Quarterly and yearly schedules use their configured start months.';
-  // Summary cards follow the currently displayed rows, including paycheck and other filters.
-  for(const [key,predicate] of [['due',r=>!r.paid],['funded',r=>r.funded&&!r.paid],['paid',r=>r.paid]]){
-    const group=shown.filter(predicate);
-    const value=r=>key==='paid'?r.actualAmount:r.remainingAmount;
-    const missing=group.filter(r=>value(r)===null).length;
-    $(''+key+'-total').textContent=money(group.reduce((sum,r)=>sum+(value(r)||0),0));
-    $(''+key+'-count').textContent=group.length+' bill'+(group.length===1?'':'s')+(missing?' · '+missing+' amount'+(missing===1?'':'s')+' not recorded':'');
-  }
+  // Summary cards follow the rows currently displayed after all filters are applied.
+  // "Still to pay" is the amount that still needs to come from the paycheck:
+  // unpaid balance minus any unpaid bills already marked as funded.
+  const unpaid=shown.filter(r=>!r.paid);
+  const fundedUnpaid=shown.filter(r=>r.funded&&!r.paid);
+  const paid=shown.filter(r=>r.paid);
+  const sumRemaining=rows=>rows.reduce((sum,r)=>sum+(r.remainingAmount||0),0);
+  const grossUnpaid=sumRemaining(unpaid);
+  const fundedAmount=sumRemaining(fundedUnpaid);
+  const paycheckNeeded=Math.max(0,Math.round((grossUnpaid-fundedAmount)*100)/100);
+
+  $('due-total').textContent=money(paycheckNeeded);
+  const dueMissing=unpaid.filter(r=>r.remainingAmount===null).length;
+  $('due-count').textContent=unpaid.length+' bill'+(unpaid.length===1?'':'s')+(dueMissing?' · '+dueMissing+' amount'+(dueMissing===1?'':'s')+' not recorded':'');
+
+  $('funded-total').textContent=money(fundedAmount);
+  const fundedMissing=fundedUnpaid.filter(r=>r.remainingAmount===null).length;
+  $('funded-count').textContent=fundedUnpaid.length+' bill'+(fundedUnpaid.length===1?'':'s')+(fundedMissing?' · '+fundedMissing+' amount'+(fundedMissing===1?'':'s')+' not recorded':'');
+
+  const paidValue=r=>r.actualAmount;
+  const paidMissing=paid.filter(r=>paidValue(r)===null).length;
+  $('paid-total').textContent=money(paid.reduce((sum,r)=>sum+(paidValue(r)||0),0));
+  $('paid-count').textContent=paid.length+' bill'+(paid.length===1?'':'s')+(paidMissing?' · '+paidMissing+' amount'+(paidMissing===1?'':'s')+' not recorded':'');
   $('visible-count').textContent=shown.length+' of '+scope.length+' bills';
   $('payment-rows').innerHTML=shown.map(r=>`<tr>
     <td><button class="payee-button" data-detail="${r.id}">${escapeHtml(r.payee)}</button></td>
