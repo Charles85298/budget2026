@@ -72,8 +72,9 @@ function render(){
   if(previewMessage) previewMessage.textContent=date.getFullYear()===2026&&date.getMonth()===9
     ? 'October 2026 includes your migrated statuses. Changes are saved to Supabase.'
     : 'Blank frequencies are treated as monthly. Quarterly and yearly schedules use their configured start months.';
+  // Summary cards follow the currently displayed rows, including paycheck and other filters.
   for(const [key,predicate] of [['due',r=>!r.paid],['funded',r=>r.funded&&!r.paid],['paid',r=>r.paid]]){
-    const group=scope.filter(predicate);
+    const group=shown.filter(predicate);
     const value=r=>key==='paid'?r.actualAmount:r.remainingAmount;
     const missing=group.filter(r=>value(r)===null).length;
     $(''+key+'-total').textContent=money(group.reduce((sum,r)=>sum+(value(r)||0),0));
