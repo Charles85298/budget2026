@@ -5,7 +5,7 @@ const pageView=document.body.dataset.pageView||'all';
 const requestedMonth=params.get('month');
 const date=/^\d{4}-(0[1-9]|1[0-2])$/.test(requestedMonth||'')
   ? new Date(Number(requestedMonth.slice(0,4)),Number(requestedMonth.slice(5))-1,1)
-  : new Date(2026,9,1);
+  : new Date(new Date().getFullYear(),new Date().getMonth(),1);
 const $=id=>document.getElementById(id);
 let selectedId=null;
 let sortState={key:'due',dir:1};

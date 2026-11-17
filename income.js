@@ -2,7 +2,7 @@ const $=id=>document.getElementById(id);
 const money=n=>n===null?'—':new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(n);
 const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const requested=new URLSearchParams(location.search).get('month');
-const date=/^\d{4}-(0[1-9]|1[0-2])$/.test(requested||'')?new Date(Number(requested.slice(0,4)),Number(requested.slice(5))-1,1):new Date(2026,9,1);
+const date=/^\d{4}-(0[1-9]|1[0-2])$/.test(requested||'')?new Date(Number(requested.slice(0,4)),Number(requested.slice(5))-1,1):new Date(new Date().getFullYear(),new Date().getMonth(),1);
 let editing=null;
 function plan(n){
   const regular=BillStore.billsFor(date).filter(b=>b.paycheck===n&&b.frequency!=='quarterly').reduce((sum,b)=>sum+(b.plannedAmount||0),0);

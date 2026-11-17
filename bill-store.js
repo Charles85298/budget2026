@@ -14,7 +14,7 @@ const BillStore=(()=>{
     if(bill.frequency==='one-time')return difference===0;
     return true; // Blank sample frequencies are treated as monthly.
   };
-  function billsFor(date){
+  function billsFor(date,includePaidOff=false){
     const month=key(date), sample=month==='2026-10', model=read(), saved=statuses(date);
     const base=rows.filter(b=>sample||(month>='2026-10'&&(
       b.frequency==='monthly'||!b.frequency||
@@ -33,6 +33,8 @@ const BillStore=(()=>{
       return {...bill,due:bill.manualOverride?Math.min(Math.max(1,Number(bill.due)||1),lastDay):(bill.dueRule==='end_of_month'?lastDay:Math.min(Number(bill.due),lastDay)),payments,actualAmount,remainingAmount:bill.amount===null?null:Math.max(0,Math.round((bill.amount-recorded-legacy)*100)/100),paid:payments.length?bill.amount!==null&&recorded>=bill.amount:bill.paid,paidDate:payments.length?payments.at(-1).date:bill.paidDate};
     };
     return [...base,...custom].flatMap(original=>{
+      const activeChange=model.changes.filter(c=>c.id===original.id&&c.from<=month).sort((a,b)=>a.from.localeCompare(b.from)).at(-1);
+      if(activeChange?.fields?.paidOff&&!includePaidOff)return [];
       const paid=(saved[original.id]?.paid ?? (sample?original.paid:false));
       if(paid)return [withPayments({
         ...original,plannedAmount:original.amount,actualAmount:null,paidDate:'',
@@ -41,6 +43,7 @@ const BillStore=(()=>{
       const changes=model.changes.filter(c=>c.id===original.id&&c.from<=month).sort((a,b)=>a.from.localeCompare(b.from));
       const latest=changes.at(-1);
       const bill=latest?{...original,...latest.fields}:original;
+      if(bill.paidOff&&!includePaidOff)return [];
       if(latest&&!occurs(bill,month,bill.firstDueMonth||latest.from))return [];
       const removal=model.removed.find(r=>r.id===original.id&&r.from<=month);
       if(removal)return [];
@@ -51,19 +54,20 @@ const BillStore=(()=>{
       })];
     });
   }
-  function quarterlyPlans(date){
+  function quarterlyPlans(date,includePaidOff=false){
     const month=key(date),model=read();
     return [...rows,...model.added].flatMap(original=>{
       const start=original.fundStartMonth||original.startMonth||'2026-10';
       if(month<start)return [];
       const latest=model.changes.filter(c=>c.id===original.id&&c.from<=month).sort((a,b)=>a.from.localeCompare(b.from)).at(-1);
       const bill=latest?{...original,...latest.fields}:original;
-      if(bill.frequency!=='quarterly'||model.removed.some(r=>r.id===bill.id&&r.from<=month))return [];
+      if((bill.paidOff&&!includePaidOff)||bill.frequency!=='quarterly'||model.removed.some(r=>r.id===bill.id&&r.from<=month))return [];
       return [{...bill,fundStartMonth:start,firstDueMonth:bill.firstDueMonth||'2026-10',fundingPaycheck:bill.fundingPaycheck||bill.paycheck,openingFundBalance:Number(bill.openingFundBalance)||0}];
     });
   }
   function add(fields,from){const model=read();const id=Date.now()+Math.floor(Math.random()*100000);model.added.push({id,...fields,startMonth:from,funded:false,paid:false,month:'',year:''});write(model);return id}
-  function change(id,fields,from){const model=read();model.changes=model.changes.filter(c=>!(c.id===id&&c.from===from));model.changes.push({id,from,fields});write(model)}
+  function change(id,fields,from){const model=read();const prior=model.changes.find(c=>c.id===id&&c.from===from);model.changes=model.changes.filter(c=>!(c.id===id&&c.from===from));model.changes.push({id,from,fields:{...(prior?.fields||{}),...fields}});write(model)}
+  function setPaidOff(id,paidOff,from){change(id,{paidOff},from)}
   function removeFuture(id,from){const model=read();model.removed=model.removed.filter(r=>r.id!==id);model.removed.push({id,from});write(model)}
-  return {billsFor,quarterlyPlans,add,change,removeFuture,key};
+  return {billsFor,quarterlyPlans,add,change,removeFuture,setPaidOff,key};
 })();

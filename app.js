@@ -1,7 +1,8 @@
 // Dashboard and payment page share the same sample bill records and browser status changes.
 const money = value => value===null?'—':new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(value);
 const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let displayDate=new Date(2026,9,1);
+const requestedMonth=new URLSearchParams(location.search).get('month');
+let displayDate=/^\d{4}-(0[1-9]|1[0-2])$/.test(requestedMonth||'')?new Date(Number(requestedMonth.slice(0,4)),Number(requestedMonth.slice(5))-1,1):new Date(new Date().getFullYear(),new Date().getMonth(),1);
 const monthLabel=document.getElementById('month-label');
 const search=document.getElementById('bill-search');
 function monthRows(){
@@ -55,6 +56,7 @@ function render(){
   document.getElementById('empty-state').hidden=filtered.length>0;
   document.getElementById('empty-state').textContent=search.value.trim()?'No unpaid bills match your search.':'All bills for this month are paid.';
 }
+document.getElementById('today-month').onclick=()=>{displayDate=new Date(new Date().getFullYear(),new Date().getMonth(),1);render()};
 document.getElementById('prev-month').onclick=()=>{displayDate.setMonth(displayDate.getMonth()-1);render()};
 document.getElementById('next-month').onclick=()=>{displayDate.setMonth(displayDate.getMonth()+1);render()};
 search.addEventListener('input',render);

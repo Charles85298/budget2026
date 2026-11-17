@@ -162,3 +162,6 @@ footer{color:#7B8B77}.login-page{background:#F7F8F3}.login-aside{background:line
   footer{margin-top:28px;text-align:center}
 }
 @media (max-width:380px){.bill-controls{grid-template-columns:1fr}.filterable-table .column-filters{grid-template-columns:1fr}.table-scroll tbody tr{grid-template-columns:1fr}.table-scroll tbody td:first-child{grid-column:auto}}
+
+/* Paid-off bill management and month navigation */
+.paid-off-filter{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;font-size:.9rem}.paid-off-filter input{accent-color:#53734b}.today-month{width:auto!important;padding:0 12px!important;font-size:.85rem!important}.row-actions [data-action="paid-off"]{white-space:nowrap}

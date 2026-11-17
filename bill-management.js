@@ -3,14 +3,14 @@ const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>'
 const money=n=>n===null?'—':new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(n);
 const now=new Date(), currentMonth=BillStore.key(now);
 $('start-month').min=currentMonth;
-$('start-month').value=currentMonth<='2026-10'?'2026-10':currentMonth;
+$('start-month').value=currentMonth;
 let editing=null;
 let sortKey='due',sortDirection='asc';
 const selectedDate=()=>{const [year,month]=$('start-month').value.split('-').map(Number);return new Date(year,month-1,1)};
 function managedBills(){
-  const due=BillStore.billsFor(selectedDate());
+  const due=BillStore.billsFor(selectedDate(),true);
   const ids=new Set(due.map(b=>b.id));
-  return [...due,...BillStore.quarterlyPlans(selectedDate()).filter(b=>!ids.has(b.id)).map(b=>({...b,paid:false,plannedAmount:b.amount}))];
+  return [...due,...BillStore.quarterlyPlans(selectedDate(),true).filter(b=>!ids.has(b.id)).map(b=>({...b,paid:false,plannedAmount:b.amount}))];
 }
 function sortValue(bill,key){
   if(key==='frequency')return bill.frequency||'monthly';
@@ -18,7 +18,7 @@ function sortValue(bill,key){
 }
 function visible(){
   const direction=sortDirection==='asc'?1:-1;
-  return managedBills().filter(r=>r.payee.toLowerCase().includes($('manage-search').value.trim().toLowerCase())).sort((a,b)=>{
+  return managedBills().filter(r=>($('show-paid-off').checked||!r.paidOff)&&r.payee.toLowerCase().includes($('manage-search').value.trim().toLowerCase())).sort((a,b)=>{
     const left=sortValue(a,sortKey),right=sortValue(b,sortKey);
     if(left===null||left===undefined)return right===null||right===undefined?a.id-b.id:1;
     if(right===null||right===undefined)return -1;
@@ -40,7 +40,7 @@ function render(){
     th.setAttribute('aria-sort',active?(sortDirection==='asc'?'ascending':'descending'):'none');
     button.querySelector('.sort-arrow').textContent=active?(sortDirection==='asc'?'↑':'↓'):'';
   });
-  $('manage-rows').innerHTML=list.map(r=>`<tr><td class="payee"><button type="button" class="payee-button" data-action="details" data-id="${r.id}" aria-label="View details for ${escapeHtml(r.payee)}">${escapeHtml(r.payee)}</button></td><td>${r.due}</td><td>${escapeHtml(r.frequency||'Monthly*')}</td><td><span class="pill">#${r.paycheck}</span></td><td class="right amount">${money(r.amount)}</td><td class="row-actions">${r.paid&&r.frequency!=='quarterly'?'<span class="muted">Paid</span>':`<button type="button" data-action="edit" data-id="${r.id}">Edit future</button><button type="button" data-action="delete" data-id="${r.id}">Delete future</button>`}</td></tr>`).join('');
+  $('manage-rows').innerHTML=list.map(r=>`<tr><td class="payee"><button type="button" class="payee-button" data-action="details" data-id="${r.id}" aria-label="View details for ${escapeHtml(r.payee)}">${escapeHtml(r.payee)}</button></td><td>${r.due}</td><td>${escapeHtml(r.frequency||'Monthly*')}</td><td><span class="pill">#${r.paycheck}</span></td><td class="right amount">${money(r.amount)}</td><td class="row-actions">${r.paidOff?'<span class="muted">Paid off</span>':r.paid&&r.frequency!=='quarterly'?'<span class="muted">Paid</span>':`<button type="button" data-action="edit" data-id="${r.id}">Edit future</button><button type="button" data-action="delete" data-id="${r.id}">Delete future</button>`} <button type="button" data-action="paid-off" data-id="${r.id}">${r.paidOff?'Reactivate':'Mark paid off'}</button></td></tr>`).join('');
   $('manage-empty').hidden=list.length>0;
 }
 function openForm(id=null){
@@ -117,6 +117,7 @@ $('manage-rows').addEventListener('click',e=>{
   const id=Number(button.dataset.id), bill=managedBills().find(b=>b.id===id);
   if(!bill)return;
   if(button.dataset.action==='details'){openDetails(id);return}
+  if(button.dataset.action==='paid-off'){const next=!bill.paidOff;if(confirm((next?'Mark ':'Reactivate ')+bill.payee+(next?' as paid off? Future bills will be hidden, but history is kept.':' starting this month?'))){BillStore.setPaidOff(id,next,$('start-month').value);render()}return}
   if(bill.paid&&bill.frequency!=='quarterly')return;
   if(button.dataset.action==='edit')openForm(id);
   else if(confirm(`Delete future ${bill.payee} bills starting ${$('start-month').value}? Paid bills will remain.`)){BillStore.removeFuture(id,$('start-month').value);render()}
@@ -138,6 +139,7 @@ $('bill-form').addEventListener('submit',e=>{
 });
 $('start-month').addEventListener('change',render);
 $('manage-search').addEventListener('input',render);
+$('show-paid-off').addEventListener('change',render);
 document.querySelector('.manage-table thead').addEventListener('click',event=>{
   const button=event.target.closest('[data-sort]');if(!button)return;
   if(sortKey===button.dataset.sort)sortDirection=sortDirection==='asc'?'desc':'asc';

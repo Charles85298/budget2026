@@ -2,7 +2,7 @@ const $=id=>document.getElementById(id);
 const money=n=>n===null?'—':new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(n);
 const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const params=new URLSearchParams(location.search),selected=params.get('month');
-const date=/^\d{4}-(0[1-9]|1[0-2])$/.test(selected||'')?new Date(Number(selected.slice(0,4)),Number(selected.slice(5))-1,1):new Date(2026,9,1);
+const date=/^\d{4}-(0[1-9]|1[0-2])$/.test(selected||'')?new Date(Number(selected.slice(0,4)),Number(selected.slice(5))-1,1):new Date(new Date().getFullYear(),new Date().getMonth(),1);
 function render(){
   const month=BillStore.key(date),allPlans=BillStore.quarterlyPlans(date);
   const search=($('fund-search')?.value||'').trim().toLowerCase(), paycheck=$('fund-paycheck')?.value||'all', funded=$('fund-funded')?.value||'all', sort=$('fund-sort')?.value||'payee';
